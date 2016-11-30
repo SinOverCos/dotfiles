@@ -1,0 +1,52 @@
+#!/usr/local/bin/bash
+#Some aliases
+#alias l="ls -l -h -G"
+alias l="ls -l -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
+# -r recursive, -n line number -i case insensitive, -s no messages, -I ignore binary, -S follow symlinks
+# -o matching only, -h no filename
+alias g="egrep -rnisIS --color"
+alias gc="egrep -rnsIS --color"
+alias opne="open"
+
+school() {
+    if [[ $# -eq 0 ]]; then
+        ssh t255wang@linux.student.cs.uwaterloo.ca
+    elif [[ $# -eq 1 && "$1" != "-y" ]]; then
+        ssh t255wang@${1}.student.cs.uwaterloo.ca
+    elif [[ $# -eq 1 && "$1" == "-y" ]]; then
+        ssh -Y t255wang@linux.student.cs.uwaterloo.ca
+    elif [[ $# -eq 2 ]]; then
+        ssh -Y t255wang@${2}.student.cs.uwaterloo.ca
+    else
+        echo "What?"
+    fi
+}
+
+#alias linux="ssh t255wang@linux.student.cs.uwaterloo.ca"
+#alias linuxy="ssh -Y t255wang@linux.student.cs.uwaterloo.ca"
+alias vi="/usr/local/Cellar/vim/7.4.1941/bin/vim"
+alias vr="/usr/local/Cellar/vim/7.4.1941/bin/vim -R"
+alias bfg="java -jar /usr/local/bin/bfg-1.12.14.jar"
+alias work="cd ~/Documents/tan/3A"
+alias droid="cd ~/AndroidStudioProjects/CueLift"
+alias paintbrush="/Applications/Paintbrush.app/Contents/MacOS/Paintbrush"
+
+alias os="cd /Users/tanwang/Documents/tan/3A/CS350/os-161-fixed"
+
+alias servecraft="cd ~/Documents/Minecraft; java -Xmx2G -Xms2G -jar minecraft_server.jar nogui"
+
+parse_git_branch() {
+    branch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/')
+    echo "" ${branch}
+}
+
+PROMPT_DIRTRIM=5
+PS1="\n\[\033[1;36m\]\w\[\033[0m\]\[\033[1;31m\]\$(parse_git_branch)\[\033[0m\]\[\033[0;34m\] ~>\[\033[0m\] ";
+
+export PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" # CoreUtils
+export PATH="/usr/bin:$PATH"  # Trying to put /usr/bin before some other path variable, forget why
+export PATH="/Users/tanwang/Library/Android/sdk/platform-tools:$PATH" # Android SDK
+export PATH="/usr/local/Cellar/ctags/5.8_1/bin:$PATH" # ctags
+export PATH="/Applications/MacDown.app/Contents/MacOS:$PATH" # MacDown
+
+cd ~/Documents/tan/3A

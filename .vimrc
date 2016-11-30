@@ -61,3 +61,5 @@ vnoremap <leader>d "_d
 
 " change word with text in default buffer
 "nnoremap cp "_dwhp
+
+set guifont="Menlo Regular:h12"
