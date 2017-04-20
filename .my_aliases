@@ -1,12 +1,29 @@
 #!/usr/local/bin/bash
-#Some aliases
-#alias l="ls -l -h -G"
-alias l="ls -l -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
+
 # -r recursive, -n line number -i case insensitive, -s no messages, -I ignore binary, -S follow symlinks
 # -o matching only, -h no filename
 alias g="egrep -rnisIS --color"
 alias gc="egrep -rnsIS --color"
-alias opne="open"
+alias vlc="/Applications/VLC.app/Contents/MacOS/VLC "
+alias l="ls -l -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
+alias ls="ls -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
+alias vi="/usr/local/bin/vim"
+alias bfg="java -jar /usr/local/bin/bfg-1.12.14.jar"
+alias work="cd ~/Documents/tan/3A"
+alias paintbrush="/Applications/Paintbrush.app/Contents/MacOS/Paintbrush"
+alias servecraft="cd ~/Documents/tan/Minecraft; java -Xmx2G -Xms2G -jar minecraft_server.jar nogui"
+alias activate="source .venv/bin/activate"
+eval $(thefuck --alias)
+
+parkr() {
+    if [ $1 == 'ec2' ]; then 
+        ssh -i /Users/tanwang/Documents/tan/parkr/aws/ec2-user.pem ec2-user@ec2-52-60-181-30.ca-central-1.compute.amazonaws.com
+    elif [ $1 == 'tan' ]; then
+        ssh tan@ec2-52-60-181-30.ca-central-1.compute.amazonaws.com
+    else
+        echo "What?"
+    fi
+}
 
 school() {
     if [[ $# -eq 0 ]]; then
@@ -22,31 +39,44 @@ school() {
     fi
 }
 
-#alias linux="ssh t255wang@linux.student.cs.uwaterloo.ca"
-#alias linuxy="ssh -Y t255wang@linux.student.cs.uwaterloo.ca"
-alias vi="/usr/local/Cellar/vim/7.4.1941/bin/vim"
-alias vr="/usr/local/Cellar/vim/7.4.1941/bin/vim -R"
-alias bfg="java -jar /usr/local/bin/bfg-1.12.14.jar"
-alias work="cd ~/Documents/tan/3A"
-alias droid="cd ~/AndroidStudioProjects/CueLift"
-alias paintbrush="/Applications/Paintbrush.app/Contents/MacOS/Paintbrush"
+auto_virtualenv() {
+    venv_dir=$(venv_check)
+    if [[ -n "$VIRTUAL_ENV" && -z "$venv_dir" ]]; then
+        deactivate
+    elif [[ -z "$VIRTUAL_ENV" && -n "$venv_dir" ]]; then
+        activate="${venv_dir}/.venv/bin/activate"
+        source "$activate"
+        export PYTHONPATH="${venv_dir}:$PYTONPATH"
+    fi
+}
 
-alias os="cd /Users/tanwang/Documents/tan/3A/CS350/os-161-fixed"
-
-alias servecraft="cd ~/Documents/Minecraft; java -Xmx2G -Xms2G -jar minecraft_server.jar nogui"
+virtualenv_info() {
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+        parent=$(dirname $VIRTUAL_ENV)
+        venv="${parent##*/}"
+    else
+        venv=''
+    fi
+    [[ -n "$venv" ]] && echo "($venv) "
+}
 
 parse_git_branch() {
     branch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/')
     echo "" ${branch}
 }
 
-PROMPT_DIRTRIM=5
-PS1="\n\[\033[1;36m\]\w\[\033[0m\]\[\033[1;31m\]\$(parse_git_branch)\[\033[0m\]\[\033[0;34m\] ~>\[\033[0m\] ";
+export PROMPT_COMMAND=auto_virtualenv
 
+PROMPT_DIRTRIM=5
+export PS1="\n\[\033[1;32m\]\$(virtualenv_info)\[\033[0m\]\[\033[1;36m\]\w\[\033[0m\]\[\033[1;31m\]\$(parse_git_branch)\[\033[0m\]\[\033[0;34m\]\n~>\[\033[0m\] ";
+
+export VIRTUAL_ENV_DISABLE_PROMPT=1
 export PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" # CoreUtils
+export PATH="/usr/local/mysql/bin/:$PATH"
 export PATH="/usr/bin:$PATH"  # Trying to put /usr/bin before some other path variable, forget why
 export PATH="/Users/tanwang/Library/Android/sdk/platform-tools:$PATH" # Android SDK
 export PATH="/usr/local/Cellar/ctags/5.8_1/bin:$PATH" # ctags
 export PATH="/Applications/MacDown.app/Contents/MacOS:$PATH" # MacDown
+export PYTHONPATH="/usr/local/lib/python2.7/site-packages"
 
-cd ~/Documents/tan/3A
+cd ~/Documents/tan

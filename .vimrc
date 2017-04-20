@@ -10,13 +10,14 @@ syntax on
 colorscheme railscasts
 set background=dark
 
+filetype on
 filetype plugin on
+filetype indent on
 
 set number
 "set relativenumber 
 
-set noautoindent
-set nocindent
+set autoindent
 set smartindent
 
 set expandtab
@@ -51,8 +52,8 @@ nnoremap gp `[v`]
 " scroll current line to 9th line from the top
 nnoremap tt 8kzt8j
 
-" CTRL-W for NERDTree
-nnoremap <C-w> :NERDTreeToggle<CR>
+" CTRL-n for NERDTree
+nnoremap <C-n> :NERDTreeToggle<CR>
 
 " _ is the black hold register
 " delete without putting text into buffer
