@@ -6,6 +6,7 @@ set noautochdir
 set path+=**
 " show all options when fuzzy finding
 set wildmenu
+" do not autocomplete from included files
 set complete-=i
 
 " for tags
@@ -83,10 +84,10 @@ vnoremap <leader>d "_d
 "nnoremap cp "_dwhp
 
 " Toggle Syntastic
-nnoremap _ :SyntasticToggleMode<ENTER>
+nnoremap _ :SyntasticToggleMode<CR>
 
 " Close Syntastic error window
-nnoremap , :SyntasticReset<ENTER>
+nnoremap , :SyntasticReset<CR>
 
 set guifont="Menlo Regular:h12"
 

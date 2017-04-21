@@ -15,28 +15,49 @@ alias servecraft="cd ~/Documents/tan/Minecraft; java -Xmx2G -Xms2G -jar minecraf
 alias activate="source .venv/bin/activate"
 eval $(thefuck --alias)
 
-parkr() {
-    if [ $1 == 'ec2' ]; then 
-        ssh -i /Users/tanwang/Documents/tan/parkr/aws/ec2-user.pem ec2-user@ec2-52-60-181-30.ca-central-1.compute.amazonaws.com
-    elif [ $1 == 'tan' ]; then
-        ssh tan@ec2-52-60-181-30.ca-central-1.compute.amazonaws.com
-    else
-        echo "What?"
-    fi
+zamzar_up() {
+    file="$1"
+    format="$2"
+    zamzar_job_id=$(
+        curl 'https://sandbox.zamzar.com/v1/jobs' \
+            -u "$ZAMZAR_API_KEY": \
+            -X POST \
+            -F "source_file=@${file}" \
+            -F "target_format=${format}" | jq -r '.id'
+    )
 }
 
-school() {
-    if [[ $# -eq 0 ]]; then
-        ssh t255wang@linux.student.cs.uwaterloo.ca
-    elif [[ $# -eq 1 && "$1" != "-y" ]]; then
-        ssh t255wang@${1}.student.cs.uwaterloo.ca
-    elif [[ $# -eq 1 && "$1" == "-y" ]]; then
-        ssh -Y t255wang@linux.student.cs.uwaterloo.ca
-    elif [[ $# -eq 2 ]]; then
-        ssh -Y t255wang@${2}.student.cs.uwaterloo.ca
-    else
-        echo "What?"
+zamzar_info() {
+    job_id="$1"
+    zamzar_target_file_id=$(
+        curl "https://sandbox.zamzar.com/v1/jobs/${job_id}" \
+            -u "$ZAMZAR_API_KEY": | jq -r '.target_files[0].id'
+    )
+}
+
+zamzar_down() {
+    file_id="$1"
+    output="$2"
+    curl "https://sandbox.zamzar.com/v1/files/${file_id}/content" \
+        -u "$ZAMZAR_API_KEY": \
+        -L \
+        -J \
+        -o "$output"
+}
+
+zamzar() {
+    if [ -z $1 ] || [ -z $2 ] || [ -z $3 ] || [ -z $4 ]; then
+        echo "zamzar file format wait_time output_file"
+        return 1
     fi
+    file="$1"
+    format="$2"
+    conversion_time="$3"
+    output_file="$4"
+    zamzar_up $file $format &&
+    sleep $conversion_time &&
+    zamzar_info $zamzar_job_id &&
+    zamzar_down $zamzar_target_file_id $output_file
 }
 
 auto_virtualenv() {
