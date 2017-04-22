@@ -15,6 +15,10 @@ alias servecraft="cd ~/Documents/tan/Minecraft; java -Xmx2G -Xms2G -jar minecraf
 alias activate="source .venv/bin/activate"
 eval $(thefuck --alias)
 
+# umount -f /local/destination
+# sshfs -p 22 user@host:/remote/directory /local/destination -oauto_cache,reconnect,defer_permissions,negative_vncache,volname=destination
+# ssh-add ~/.ssh/id_rsa
+
 zamzar_up() {
     file="$1"
     format="$2"
