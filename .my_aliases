@@ -104,4 +104,4 @@ export PATH="/usr/local/Cellar/ctags/5.8_1/bin:$PATH" # ctags
 export PATH="/Applications/MacDown.app/Contents/MacOS:$PATH" # MacDown
 export PYTHONPATH="/usr/local/lib/python2.7/site-packages"
 
-cd ~/Documents/tan
+cd ~/Documents/tan/3B

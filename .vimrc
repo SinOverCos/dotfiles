@@ -49,7 +49,6 @@ set number
 set mouse=a
 " allow dragging inside tmux
 set ttymouse=xterm2
-set clipboard=unnamed
 
 set backspace=indent,eol,start
 
