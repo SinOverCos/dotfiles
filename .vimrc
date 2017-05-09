@@ -1,4 +1,3 @@
-" let g:pathogen_disabled = ["nerdtree"]
 execute pathogen#infect()
 
 set noautochdir
@@ -38,12 +37,12 @@ nnoremap <C-H> <C-W><C-H>
 set splitbelow
 set splitright
 
-set statusline=%F%m%r%h%w\ %=[FORMAT=%{&ff}]\ [LEN=%L]\ [POS=%04l,%04v][%p%%]
-set statusline+=%#warningmsg#
-set statusline+=%*
+"set statusline=%F%m%r%h%w\ %=[FORMAT=%{&ff}]\ [LEN=%L]\ [POS=%04l,%04v][%p%%]
+"set statusline+=%#warningmsg#
+"set statusline+=%*
 set laststatus=2
 set number
-"set relativenumber 
+"set relativenumber
 
 
 set mouse=a
@@ -95,9 +94,9 @@ let &colorcolumn=join(range(81,81),",")
 
 set autoread
 
-hi TabLine      ctermfg=White  ctermbg=253  cterm=NONE
-hi TabLineFill  ctermfg=White  ctermbg=253  cterm=NONE
-hi TabLineSel   ctermfg=Black  ctermbg=253  cterm=NONE
+"hi TabLine      ctermfg=White  ctermbg=253  cterm=NONE
+"hi TabLineFill  ctermfg=White  ctermbg=253  cterm=NONE
+"hi TabLineSel   ctermfg=Black  ctermbg=253  cterm=NONE
 
 " count things selected in visual mode
 set showcmd
@@ -111,7 +110,14 @@ filetype plugin on
 set autoindent
 set nocindent
 
+let g:airline_section_x = ""
+let g:airline_theme = "luna"
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#whitespace#enabled = 0
+let g:airline#extensions#tabline#show_buffers = 0
+
 let g:syntastic_python_checkers = ["flake8", "pylint"]
+let g:syntastic_c_checkers = ["gcc"]
 
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
@@ -120,6 +126,6 @@ let g:syntastic_check_on_wq = 0
 " Ignore certain errors
 let g:syntastic_quiet_messages = { 'regex' : [
     \ "E501", "E128", "E261",
-    \ "missing-docstring", "invalid-name", "too-few-public-methods", "fixme", 
+    \ "missing-docstring", "invalid-name", "too-few-public-methods", "fixme",
     \ "no-value-for-parameter", "line-too-long"
     \ ] }
