@@ -37,9 +37,6 @@ nnoremap <C-H> <C-W><C-H>
 set splitbelow
 set splitright
 
-"set statusline=%F%m%r%h%w\ %=[FORMAT=%{&ff}]\ [LEN=%L]\ [POS=%04l,%04v][%p%%]
-"set statusline+=%#warningmsg#
-"set statusline+=%*
 set laststatus=2
 set number
 "set relativenumber
@@ -112,6 +109,7 @@ set nocindent
 
 let g:airline_section_x = ""
 let g:airline_theme = "luna"
+let g:airline_section_z = " %p%% %l/%L ln: %v"
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#whitespace#enabled = 0
 let g:airline#extensions#tabline#show_buffers = 0
