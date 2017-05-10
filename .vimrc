@@ -109,7 +109,7 @@ set nocindent
 
 let g:airline_section_x = ""
 let g:airline_theme = "luna"
-let g:airline_section_z = " %p%% %l/%L ln: %v"
+let g:airline_section_z = "%p%%  %l/%L  ln: %v"
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#whitespace#enabled = 0
 let g:airline#extensions#tabline#show_buffers = 0
