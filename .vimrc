@@ -55,6 +55,7 @@ set vb
 " Un-highlight search
 nnoremap <silent> <CR> :noh<CR>
 nnoremap <silent> <C-c> :noh<CR>
+nnoremap <silent> <esc> :noh<CR>
 
 " grab the text that was just pasted
 nnoremap gp `[v`]
@@ -113,6 +114,7 @@ let g:airline_section_z = "%p%%  %l/%L  ln: %v"
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#whitespace#enabled = 0
 let g:airline#extensions#tabline#show_buffers = 0
+let g:airline#extensions#tabline#fnamemod = ':t'
 
 let g:syntastic_python_checkers = ["flake8", "pylint"]
 let g:syntastic_c_checkers = ["gcc"]

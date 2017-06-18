@@ -71,7 +71,6 @@ auto_virtualenv() {
     elif [[ -z "$VIRTUAL_ENV" && -n "$venv_dir" ]]; then
         activate="${venv_dir}/.venv/bin/activate"
         source "$activate"
-        export PYTHONPATH="${venv_dir}:$PYTONPATH"
     fi
 }
 
@@ -98,10 +97,8 @@ export PS1="\n\[\033[1;32m\]\$(virtualenv_info)\[\033[0m\]\[\033[1;36m\]\w\[\033
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 export PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" # CoreUtils
 export PATH="/usr/local/mysql/bin/:$PATH"
-export PATH="/usr/bin:$PATH"  # Trying to put /usr/bin before some other path variable, forget why
 export PATH="/Users/tanwang/Library/Android/sdk/platform-tools:$PATH" # Android SDK
 export PATH="/usr/local/Cellar/ctags/5.8_1/bin:$PATH" # ctags
 export PATH="/Applications/MacDown.app/Contents/MacOS:$PATH" # MacDown
-export PYTHONPATH="/usr/local/lib/python2.7/site-packages"
 
 cd ~/Documents/tan/3B
