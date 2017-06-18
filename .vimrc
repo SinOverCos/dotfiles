@@ -104,8 +104,6 @@ set background=dark
 colorscheme railscasts
 filetype plugin on
 
-filetype indent plugin on
-set autoindent
 set cindent
 let g:pyindent_open_paren = '&sw'
 let g:pyindent_nested_paren = '&sw'
