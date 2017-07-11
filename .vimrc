@@ -102,12 +102,8 @@ set showcmd
 syntax enable
 set background=dark
 colorscheme railscasts
-filetype plugin on
 
-set cindent
-let g:pyindent_open_paren = '&sw'
-let g:pyindent_nested_paren = '&sw'
-let g:pyindent_continue = '&sw'
+filetype indent plugin on
 
 let g:airline_section_x = ""
 let g:airline_theme = "luna"
