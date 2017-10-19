@@ -1,5 +1,9 @@
 execute pathogen#infect()
 
+
+" for fuzzy finding
+set rtp+=/usr/local/bin/fzf
+" stay in root dir no matter which file
 set noautochdir
 " add current directory to path
 set path+=**
@@ -7,6 +11,7 @@ set path+=**
 set wildmenu
 " do not autocomplete from included files
 set complete-=i
+
 
 " for tags
 set tags=./tags;$HOME
@@ -21,11 +26,14 @@ nnoremap <silent> <leader><C-]> <C-w><C-]><C-w>T
 " Open tagbar
 nnoremap gc :TagbarToggle<CR>
 
+
+" tabs
 set expandtab
 set tabstop=4
 set shiftwidth=4
 set softtabstop=4
 set nowrap
+
 
 " easier pane navigation
 nnoremap <C-J> <C-W><C-J>
@@ -41,22 +49,32 @@ set laststatus=2
 set number
 "set relativenumber
 
-
 set mouse=a
 " allow dragging inside tmux
 set ttymouse=xterm2
 
 set backspace=indent,eol,start
 
+
+" file search
+set rtp+=/usr/local/bin/rg
+if executable("rg")
+    let g:ackprg = "rg\ --vimgrep\ --no-heading\ --ignore-case\ --glob\ '!tags'\ --regexp"
+endif
+
+
+" in-buffer search
 set hlsearch
 set ignorecase
 set smartcase
 set vb
 " Un-highlight search
-nnoremap <silent> <CR> :noh<CR>
+" nnoremap <silent> <CR> :noh<CR>
 nnoremap <silent> <C-c> :noh<CR>
 " nnoremap <silent> <esc> :noh<CR>
 
+
+" navigation
 " grab the text that was just pasted
 nnoremap gp `[v`]
 
@@ -66,11 +84,17 @@ nmap gB gggb
 nmap `` ``gb
 nmap '' ''gb
 
+
+" file browsing
 let g:netrw_liststyle=3
 " CTRL-N for NERDTree
 nnoremap <C-n> :NERDTreeToggle<CR>
 let NERDTreeIgnore = ["\.pyc$", "^__init__.py$"]
 
+
+" text editing
+nnoremap <CR> o<esc>
+nnoremap <S-CR> O<esc>
 " _ is the black hole register
 " delete without putting text into buffer
 nnoremap <leader>d "_d
@@ -79,12 +103,27 @@ vnoremap <leader>d "_d
 " change word with text in default buffer
 "nnoremap cp "_dwhp
 
+
+" linting
 " Toggle Syntastic
 nnoremap _ :SyntasticToggleMode<CR>
 
 " Close Syntastic error window
 nnoremap , :SyntasticReset<CR>
 
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 0
+let g:syntastic_check_on_wq = 0
+" Ignore certain errors
+let g:syntastic_quiet_messages = { 'regex' : [
+    \ "E501", "E128", "E261",
+    \ "missing-docstring", "invalid-name", "too-few-public-methods", "fixme",
+    \ "no-value-for-parameter", "line-too-long"
+    \ ] }
+
+
+" aesthetics
 set guifont="Menlo Regular:h12"
 " for non-english characters
 set fileencoding=utf-8
@@ -117,14 +156,3 @@ let g:airline#extensions#tabline#fnamemod = ':t'
 
 let g:syntastic_python_checkers = ["flake8", "pylint"]
 let g:syntastic_c_checkers = ["gcc"]
-
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 0
-let g:syntastic_check_on_wq = 0
-" Ignore certain errors
-let g:syntastic_quiet_messages = { 'regex' : [
-    \ "E501", "E128", "E261",
-    \ "missing-docstring", "invalid-name", "too-few-public-methods", "fixme",
-    \ "no-value-for-parameter", "line-too-long"
-    \ ] }
