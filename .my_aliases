@@ -1,5 +1,7 @@
 #!/usr/local/bin/bash
 
+alias rg="rg --pretty --glob '!tags' --regexp"
+alias rgi="rg --pretty --ignore-case --glob '!tags' --regexp"
 # -r recursive, -n line number -i case insensitive, -s no messages, -I ignore binary, -S follow symlinks
 # -o matching only, -h no filename
 alias g="egrep -rnisIS --color"
@@ -92,13 +94,14 @@ parse_git_branch() {
 export PROMPT_COMMAND=auto_virtualenv
 
 PROMPT_DIRTRIM=5
-export PS1="\n\[\033[1;32m\]\$(virtualenv_info)\[\033[0m\]\[\033[1;36m\]\w\[\033[0m\]\[\033[1;31m\]\$(parse_git_branch)\[\033[0m\]\[\033[0;34m\]\n~>\[\033[0m\] ";
+export PS1="\n\[\033[1;30m\][MBP]\[\033[0m\] \[\033[1;32m\]\$(virtualenv_info)\[\033[0m\]\[\033[1;36m\]\w\[\033[0m\]\[\033[1;31m\]\$(parse_git_branch)\[\033[0m\]\[\033[0;34m\]\n~>\[\033[0m\] ";
 
 export VIRTUAL_ENV_DISABLE_PROMPT=1
+export PATH="/usr/local/opt/python/libexec/bin:$PATH" # python
 export PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" # CoreUtils
 export PATH="/usr/local/mysql/bin/:$PATH"
 export PATH="/Users/tanwang/Library/Android/sdk/platform-tools:$PATH" # Android SDK
 export PATH="/usr/local/Cellar/ctags/5.8_1/bin:$PATH" # ctags
 export PATH="/Applications/MacDown.app/Contents/MacOS:$PATH" # MacDown
 
-cd ~/Documents/tan/3B
+cd ~/Documents/tan

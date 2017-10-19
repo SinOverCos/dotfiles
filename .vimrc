@@ -55,7 +55,7 @@ set vb
 " Un-highlight search
 nnoremap <silent> <CR> :noh<CR>
 nnoremap <silent> <C-c> :noh<CR>
-nnoremap <silent> <esc> :noh<CR>
+" nnoremap <silent> <esc> :noh<CR>
 
 " grab the text that was just pasted
 nnoremap gp `[v`]
@@ -86,6 +86,8 @@ nnoremap _ :SyntasticToggleMode<CR>
 nnoremap , :SyntasticReset<CR>
 
 set guifont="Menlo Regular:h12"
+" for non-english characters
+set fileencoding=utf-8
 
 " highlight past column 80
 let &colorcolumn=join(range(81,81),",")
