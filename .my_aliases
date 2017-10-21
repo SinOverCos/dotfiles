@@ -2,19 +2,29 @@
 
 alias rg="rg --pretty --glob '!tags' --regexp"
 alias rgi="rg --pretty --ignore-case --glob '!tags' --regexp"
+
 # -r recursive, -n line number -i case insensitive, -s no messages, -I ignore binary, -S follow symlinks
 # -o matching only, -h no filename
 alias g="egrep -rnisIS --color"
 alias gc="egrep -rnsIS --color"
-alias vlc="/Applications/VLC.app/Contents/MacOS/VLC "
+
 alias l="ls -l -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
 alias ls="ls -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
+
+export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!{.git}" 2> /dev/null'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+bind -x '"\C-p": fzf_result=$(fzf); [[ ! -z $fzf_result ]] && vim $fzf_result'
+
 alias vi="/usr/local/bin/vim"
+
+alias vlc="/Applications/VLC.app/Contents/MacOS/VLC "
+
 alias bfg="java -jar /usr/local/bin/bfg-1.12.14.jar"
-alias work="cd ~/Documents/tan/3A"
+
 alias paintbrush="/Applications/Paintbrush.app/Contents/MacOS/Paintbrush"
-alias servecraft="cd ~/Documents/tan/Minecraft; java -Xmx2G -Xms2G -jar minecraft_server.jar nogui"
+
 alias activate="source .venv/bin/activate"
+
 eval $(thefuck --alias)
 
 # umount -f /local/destination

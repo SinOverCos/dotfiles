@@ -1,3 +1,5 @@
+" ale is nice but it doesn't have an option to suppress certain messages
+let g:pathogen_disabled = ['ale']
 execute pathogen#infect()
 
 
@@ -11,6 +13,8 @@ set path+=**
 set wildmenu
 " do not autocomplete from included files
 set complete-=i
+" grab current file path
+nnoremap <silent> cp :let @+ = expand('%:p')<CR>
 
 
 " for tags
@@ -25,6 +29,13 @@ nnoremap <C-\> :vsp <CR>:exec("tag ".expand("<cword>"))<CR>
 nnoremap <silent> <leader><C-]> <C-w><C-]><C-w>T
 " Open tagbar
 nnoremap gc :TagbarToggle<CR>
+
+
+" ctrl-p
+let g:ctrlp_switch_buffer = 'Et'
+let g:ctrlp_open_multiple_files = 't'
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_working_path_mode = 'ra'
 
 
 " tabs
@@ -59,7 +70,7 @@ set backspace=indent,eol,start
 " file search
 set rtp+=/usr/local/bin/rg
 if executable("rg")
-    let g:ackprg = "rg\ --vimgrep\ --no-heading\ --ignore-case\ --glob\ '!tags'\ --regexp"
+    let g:ackprg = "rg\ --vimgrep\ --no-heading\ --ignore-case\ --glob\ '!{tags,.git}'\ --regexp"
 endif
 
 
@@ -93,8 +104,8 @@ let NERDTreeIgnore = ["\.pyc$", "^__init__.py$"]
 
 
 " text editing
-nnoremap <CR> o<esc>
-nnoremap <S-CR> O<esc>
+" nnoremap <CR> o<esc> " conflict with Ack
+" nnoremap <S-CR> O<esc> " conflict with Ack
 " _ is the black hole register
 " delete without putting text into buffer
 nnoremap <leader>d "_d
