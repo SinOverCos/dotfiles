@@ -1,6 +1,7 @@
 " ale is nice but it doesn't have an option to suppress certain messages
 let g:pathogen_disabled = ['ale']
 execute pathogen#infect()
+execute pathogen#helptags()
 
 
 " for fuzzy finding
@@ -11,6 +12,8 @@ set noautochdir
 set path+=**
 " show all options when fuzzy finding
 set wildmenu
+" ignore files
+set wildignore=*.pyc,__init__.py
 " do not autocomplete from included files
 set complete-=i
 " grab current file path
