@@ -133,7 +133,7 @@ let g:syntastic_check_on_wq = 0
 let g:syntastic_quiet_messages = { 'regex' : [
     \ "E501", "E128", "E261",
     \ "missing-docstring", "invalid-name", "too-few-public-methods", "fixme",
-    \ "no-value-for-parameter", "line-too-long"
+    \ "no-value-for-parameter", "line-too-long", "dangerous-default-value",
     \ ] }
 
 
