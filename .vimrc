@@ -1,5 +1,5 @@
 " ale is nice but it doesn't have an option to suppress certain messages
-let g:pathogen_disabled = ['ale']
+let g:pathogen_disabled = ['ale', 'vim-gitgutter']
 execute pathogen#infect()
 execute pathogen#helptags()
 
@@ -91,6 +91,7 @@ nnoremap <silent> <C-c> :noh<CR>
 " navigation
 " grab the text that was just pasted
 nnoremap gp `[v`]
+set noek
 
 " scroll current line to 9th line from the top
 nnoremap gb 8kzt8j
@@ -125,13 +126,24 @@ nnoremap _ :SyntasticToggleMode<CR>
 " Close Syntastic error window
 nnoremap , :SyntasticReset<CR>
 
+" Strip trailing whitespace
+fun! <SID>StripTrailingWhitespaces()
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    call cursor(l, c)
+endfun
+
+autocmd FileType python autocmd BufWritePre <buffer> :call <SID>StripTrailingWhitespaces()
+
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 0
 let g:syntastic_check_on_wq = 0
+let g:syntastic_aggregate_errors = 1
 " Ignore certain errors
 let g:syntastic_quiet_messages = { 'regex' : [
-    \ "E501", "E128", "E261",
+    \ "E501", "E128", "E261", "E701",
     \ "missing-docstring", "invalid-name", "too-few-public-methods", "fixme",
     \ "no-value-for-parameter", "line-too-long", "dangerous-default-value",
     \ ] }
@@ -168,5 +180,6 @@ let g:airline#extensions#whitespace#enabled = 0
 let g:airline#extensions#tabline#show_buffers = 0
 let g:airline#extensions#tabline#fnamemod = ':t'
 
-let g:syntastic_python_checkers = ["flake8", "pylint"]
+" let g:syntastic_python_checkers = ["flake8", "pylint"]
+let g:syntastic_python_checkers = ["flake8"]
 let g:syntastic_c_checkers = ["gcc"]
