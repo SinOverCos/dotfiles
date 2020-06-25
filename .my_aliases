@@ -57,7 +57,7 @@ zamzar_info() {
             break
         fi
 
-        sleep 3
+        sleep 10
     done
 
     zamzar_target_file_id=$(
@@ -127,4 +127,4 @@ export PATH="/Users/tanwang/Library/Android/sdk/platform-tools:$PATH" # Android 
 export PATH="/usr/local/Cellar/ctags/5.8_1/bin:$PATH" # ctags
 export PATH="/Applications/MacDown.app/Contents/MacOS:$PATH" # MacDown
 
-cd ~/Documents/tan/4A
+cd ~/Documents/tan
