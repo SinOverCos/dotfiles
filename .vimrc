@@ -19,7 +19,6 @@ set complete-=i
 " grab current file path
 nnoremap <silent> cp :let @+ = expand('%:p')<CR>
 
-
 " for tags
 set tags=./tags;$HOME
 " Open definition in vertical split
@@ -90,7 +89,7 @@ nnoremap <silent> <C-c> :noh<CR>
 
 " navigation
 " grab the text that was just pasted
-nnoremap gp `[v`]
+" nnoremap gp `[v`]
 set noek
 
 " scroll current line to 9th line from the top
@@ -121,10 +120,10 @@ vnoremap <leader>d "_d
 
 " linting
 " Toggle Syntastic
-nnoremap _ :SyntasticToggleMode<CR>
+" nnoremap _ :SyntasticToggleMode<CR>
 
 " Close Syntastic error window
-nnoremap , :SyntasticReset<CR>
+" nnoremap , :SyntasticReset<CR>
 
 " Strip trailing whitespace
 fun! <SID>StripTrailingWhitespaces()
@@ -184,3 +183,5 @@ let g:airline#extensions#tabline#fnamemod = ':t'
 " let g:syntastic_python_checkers = ["flake8", "pylint"]
 let g:syntastic_python_checkers = ["flake8"]
 let g:syntastic_c_checkers = ["gcc"]
+
+let g:snipMate = { 'snippet_version' : 1 }
