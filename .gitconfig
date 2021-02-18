@@ -1,12 +1,15 @@
 [diff "pandoc"]
-    textconv=pandoc --to=markdown
+    textconv = pandoc --to=markdown
     prompt = false
 [alias]
     wdiff = diff --word-diff=color --unified=1
     lg = log \
         --graph \
+        --branches \
         --date=format:'%I:%M %p on %A, %Y-%m-%d' \
         --format=format:'%C(bold green)%h%C(reset) %C(white)%s%C(reset) %C(blue)(%ad)%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'
 [user]
 	name = Tan Wang
 	email = tanw.mini@gmail.com
+[core]
+	editor = vim
