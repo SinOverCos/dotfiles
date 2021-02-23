@@ -13,3 +13,5 @@
 	email = tanw.mini@gmail.com
 [core]
 	editor = vim
+[push]
+    default = simple
