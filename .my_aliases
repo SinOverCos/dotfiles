@@ -15,116 +15,38 @@ export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!{.
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 bind -x '"\C-p": fzf_result=$(fzf); [[ ! -z $fzf_result ]] && vim $fzf_result'
 
-alias vi="/usr/local/bin/vim"
-
-alias vlc="/Applications/VLC.app/Contents/MacOS/VLC "
-
-alias bfg="java -jar /usr/local/bin/bfg-1.12.14.jar"
-
-alias paintbrush="/Applications/Paintbrush.app/Contents/MacOS/Paintbrush"
-
-alias activate="source .venv/bin/activate"
-
-eval $(thefuck --alias)
-
-# umount -f /local/destination
-# sshfs -p 22 user@host:/remote/directory /local/destination -oauto_cache,reconnect,defer_permissions,negative_vncache,volname=destination
+# umount -f /local/destination # sshfs -p 22 user@host:/remote/directory /local/destination -oauto_cache,reconnect,defer_permissions,negative_vncache,volname=destination
 # ssh-add ~/.ssh/id_rsa
-
-zamzar_up() {
-    file="$1"
-    format="$2"
-    zamzar_job_id=$(
-        curl 'https://sandbox.zamzar.com/v1/jobs' \
-            -u "$ZAMZAR_API_KEY": \
-            -X POST \
-            -F "source_file=@${file}" \
-            -F "target_format=${format}" | jq -r '.id'
-    )
-}
-
-zamzar_info() {
-    job_id="$1"
-    while :; do
-        curl "https://sandbox.zamzar.com/v1/jobs/${job_id}" \
-            -u "$ZAMZAR_API_KEY": | jq -r '.status'
-        status=$(
-            curl "https://sandbox.zamzar.com/v1/jobs/${job_id}" \
-                -u "$ZAMZAR_API_KEY": | jq -r '.status'
-        )
-
-        if [[ $status == successful ]]; then
-            break
-        fi
-
-        sleep 10
-    done
-
-    zamzar_target_file_id=$(
-        curl "https://sandbox.zamzar.com/v1/jobs/${job_id}" \
-            -u "$ZAMZAR_API_KEY": | jq -r '.target_files[0].id'
-    )
-}
-
-zamzar_down() {
-    file_id="$1"
-    output="$2"
-    curl "https://sandbox.zamzar.com/v1/files/${file_id}/content" \
-        -u "$ZAMZAR_API_KEY": \
-        -L \
-        -J \
-        -o "$output"
-}
-
-zamzar() {
-    if [ -z $1 ] || [ -z $2 ] || [ -z $3 ]; then
-        echo "zamzar file format output_file"
-        return 1
-    fi
-    file="$1"
-    format="$2"
-    output_file="$3"
-    zamzar_up $file $format &&
-    zamzar_info $zamzar_job_id &&
-    zamzar_down $zamzar_target_file_id $output_file
-}
-
-auto_virtualenv() {
-    venv_dir=$(venv_check)
-    if [[ -n "$VIRTUAL_ENV" && -z "$venv_dir" ]]; then
-        deactivate
-    elif [[ -z "$VIRTUAL_ENV" && -n "$venv_dir" ]]; then
-        activate="${venv_dir}/.venv/bin/activate"
-        source "$activate"
-    fi
-}
-
-virtualenv_info() {
-    if [[ -n "$VIRTUAL_ENV" ]]; then
-        parent=$(dirname $VIRTUAL_ENV)
-        venv="${parent##*/}"
-    else
-        venv=''
-    fi
-    [[ -n "$venv" ]] && echo "($venv) "
-}
 
 parse_git_branch() {
     branch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/')
     echo "" ${branch}
 }
 
-export PROMPT_COMMAND=auto_virtualenv
+auto_virtualenv() {
+    command=$(python3 ~/auto-virtualenv/venv_toggle_command.py --command)
+    eval $command
+}
+
+virtualenv_info() {
+    project_name=$(python3 ~/auto-virtualenv/venv_toggle_command.py --project-name)
+    if [[ -n $project_name ]]; then
+        echo "($project_name) "
+    fi
+}
+
+make_ps1() {
+    newline="\n"
+    host="\[\033[1;30m\][EC2]\[\033[0m\] "
+    virtualenv="\[\033[1;32m\]\$(virtualenv_info)\[\033[0m\]"
+    working_path="\[\033[1;36m\]\w\[\033[0m\]"
+    git="\[\033[1;31m\]\$(parse_git_branch)\[\033[0m\]"
+    arrow="\[\033[0;34m\]\n~>\[\033[0m\] "
+    echo "$newline$host$virtualenv$working_path$git$arrow"
+}
+
 
 PROMPT_DIRTRIM=5
-export PS1="\n\[\033[1;30m\][MBP]\[\033[0m\] \[\033[1;32m\]\$(virtualenv_info)\[\033[0m\]\[\033[1;36m\]\w\[\033[0m\]\[\033[1;31m\]\$(parse_git_branch)\[\033[0m\]\[\033[0;34m\]\n~>\[\033[0m\] ";
-
 export VIRTUAL_ENV_DISABLE_PROMPT=1
-export PATH="/usr/local/opt/python/libexec/bin:$PATH" # python
-export PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" # CoreUtils
-export PATH="/usr/local/mysql/bin/:$PATH"
-export PATH="/Users/tanwang/Library/Android/sdk/platform-tools:$PATH" # Android SDK
-export PATH="/usr/local/Cellar/ctags/5.8_1/bin:$PATH" # ctags
-export PATH="/Applications/MacDown.app/Contents/MacOS:$PATH" # MacDown
-
-cd ~/Documents/tan
+export PROMPT_COMMAND=auto_virtualenv
+export PS1=$(make_ps1);
