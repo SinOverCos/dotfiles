@@ -1,5 +1,5 @@
 " ale is nice but it doesn't have an option to suppress certain messages
-let g:pathogen_disabled = ['ale', 'vim-gitgutter']
+let g:pathogen_disabled = ['syntastic', 'vim-gitgutter']
 execute pathogen#infect()
 execute pathogen#helptags()
 
@@ -13,7 +13,7 @@ set path+=**
 " show all options when fuzzy finding
 set wildmenu
 " ignore files
-set wildignore=*.pyc,__init__.py
+set wildignore=*.pyc,__init__.py,*/node_modules/*
 " do not autocomplete from included files
 set complete-=i
 " grab current file path
@@ -85,6 +85,7 @@ set vb
 " nnoremap <silent> <CR> :noh<CR>
 nnoremap <silent> <C-c> :noh<CR>
 " nnoremap <silent> <esc> :noh<CR>
+" nnoremap <silent> <esc> :noh<CR><esc>
 
 
 " navigation
@@ -138,7 +139,7 @@ autocmd FileType python autocmd BufWritePre <buffer> :call <SID>StripTrailingWhi
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 0
-let g:syntastic_check_on_wq = 0
+let g:syntastic_check_on_wq = 1
 let g:syntastic_aggregate_errors = 1
 " Ignore certain errors
 let g:syntastic_quiet_messages = { 'regex' : [
@@ -179,9 +180,11 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#whitespace#enabled = 0
 let g:airline#extensions#tabline#show_buffers = 0
 let g:airline#extensions#tabline#fnamemod = ':t'
+let g:airline#extensions#syntastic#enabled = 1
 
 " let g:syntastic_python_checkers = ["flake8", "pylint"]
 let g:syntastic_python_checkers = ["flake8"]
 let g:syntastic_c_checkers = ["gcc"]
+let g:syntastic_javascript_checkers=['eslint']
 
 let g:snipMate = { 'snippet_version' : 1 }

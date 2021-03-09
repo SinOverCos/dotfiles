@@ -6,7 +6,7 @@
     lg = log \
         --graph \
         --branches \
-        --date=format:'%I:%M %p on %A, %Y-%m-%d' \
+        --date=format-local:'%A, %d %B %Y at %I:%M %p' \
         --format=format:'%C(bold green)%h%C(reset) %C(white)%s%C(reset) %C(blue)(%ad)%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'
 [user]
     name = Tan Wang
@@ -14,4 +14,4 @@
 [core]
     editor = vim
 [push]
-    default = simple
+    default = upstream
