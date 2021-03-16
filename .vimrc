@@ -1,4 +1,3 @@
-" ale is nice but it doesn't have an option to suppress certain messages
 let g:pathogen_disabled = ['syntastic', 'vim-gitgutter']
 execute pathogen#infect()
 execute pathogen#helptags()
@@ -42,10 +41,13 @@ let g:ctrlp_working_path_mode = 'ra'
 
 " tabs
 set expandtab
-set tabstop=4
-set shiftwidth=4
-set softtabstop=4
+set tabstop=4 " deals with tab characters
+set softtabstop=4 " deals with <tab> and <backspace> keypresses
+set shiftwidth=4 " deals with << and >>
 set nowrap
+autocmd FileType css setlocal shiftwidth=2 tabstop=2 softtabstop=2
+autocmd FileType html setlocal shiftwidth=2 tabstop=2 softtabstop=2
+autocmd FileType javascript setlocal shiftwidth=2 tabstop=2 softtabstop=2
 
 
 " easier pane navigation
