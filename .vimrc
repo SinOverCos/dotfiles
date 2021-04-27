@@ -173,7 +173,7 @@ syntax enable
 set background=dark
 colorscheme railscasts
 
-filetype indent plugin on
+filetype plugin indent on
 
 let g:airline_section_x = ""
 let g:airline_theme = "luna"
