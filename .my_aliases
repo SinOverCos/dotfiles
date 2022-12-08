@@ -8,15 +8,12 @@ alias rgi="rg --pretty --ignore-case --glob '!tags' --regexp"
 alias g="egrep -rnisIS --color"
 alias gc="egrep -rnsIS --color"
 
-alias l="ls -l -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
-alias ls="ls -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
+alias l="gls -l -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
+alias ls="gls -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
 
 export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!{.git}" 2> /dev/null'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 bind -x '"\C-p": fzf_result=$(fzf); [[ ! -z $fzf_result ]] && vim $fzf_result'
-
-# umount -f /local/destination # sshfs -p 22 user@host:/remote/directory /local/destination -oauto_cache,reconnect,defer_permissions,negative_vncache,volname=destination
-# ssh-add ~/.ssh/id_rsa
 
 parse_git_branch() {
     branch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/')
@@ -37,7 +34,7 @@ virtualenv_info() {
 
 make_ps1() {
     newline="\n"
-    host="\[\033[1;30m\][EC2]\[\033[0m\] "
+    host="\[\033[1;30m\][PINS]\[\033[0m\] "
     virtualenv="\[\033[1;32m\]\$(virtualenv_info)\[\033[0m\]"
     working_path="\[\033[1;36m\]\w\[\033[0m\]"
     git="\[\033[1;31m\]\$(parse_git_branch)\[\033[0m\]"

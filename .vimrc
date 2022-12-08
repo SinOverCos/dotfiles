@@ -31,6 +31,9 @@ nnoremap <silent> <leader><C-]> <C-w><C-]><C-w>T
 " Open tagbar
 nnoremap gc :TagbarToggle<CR>
 
+" reload file as it changes on disk
+set autoread
+
 
 " ctrl-p
 let g:ctrlp_switch_buffer = 'Et'
