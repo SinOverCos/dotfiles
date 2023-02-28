@@ -43,6 +43,8 @@ set number
 
 
 set mouse=a
+" allow dragging inside tmux
+set ttymouse=xterm2
 
 
 set backspace=indent,eol,start
@@ -158,10 +160,6 @@ let g:ctrlp_switch_buffer = 'Et'
 let g:ctrlp_open_multiple_files = 't'
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_working_path_mode = 'ra'
-
-
-" allow dragging inside tmux
-set ttymouse=xterm2
 
 
 " file search
