@@ -109,6 +109,7 @@ set fileencoding=utf-8
 
 " highlight past column 80
 let &colorcolumn=join(range(81,81),",")
+:hi ColorColumn ctermbg=grey guibg=grey
 
 
 set autoread
