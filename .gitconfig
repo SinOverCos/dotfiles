@@ -8,10 +8,17 @@
         --branches \
         --date=format-local:'%A, %d %B %Y at %I:%M %p' \
         --format=format:'%C(bold green)%h%C(reset) %C(white)%s%C(reset) %C(blue)(%ad)%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'
+    amend = commit -a --amend --no-edit
+
 [user]
     name = Tan Wang
     email = tanw.mini@gmail.com
+
 [core]
     editor = vim
+
 [push]
-    default = upstream
+    default = current
+
+[pull]
+    default = current
