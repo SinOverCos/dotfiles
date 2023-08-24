@@ -1,7 +1,7 @@
 #!/usr/local/bin/bash
 
-alias rg="rg --pretty --glob '!tags' --regexp"
-alias rgi="rg --pretty --ignore-case --glob '!tags' --regexp"
+alias rg="rg --pretty --glob '!tags' --max-columns 300 "
+alias rgi="\rg --pretty --ignore-case --glob '!tags' --max-columns 300 "
 
 # -r recursive, -n line number -i case insensitive, -s no messages, -I ignore binary, -S follow symlinks
 # -o matching only, -h no filename
@@ -11,16 +11,24 @@ alias gc="egrep -rnsIS --color"
 alias l="ls -l -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
 alias ls="ls -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
 
+export HASTE_SERVER="https://paste.pinadmin.com/"
+export HASTE_SHARE_SERVER="https://paste.pinadmin.com/"
+alias haste="haste | sed 's/share\///g'"
+
 export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!{.git}" 2> /dev/null'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 bind -x '"\C-p": fzf_result=$(fzf); [[ ! -z $fzf_result ]] && vim $fzf_result'
 
-# umount -f /local/destination # sshfs -p 22 user@host:/remote/directory /local/destination -oauto_cache,reconnect,defer_permissions,negative_vncache,volname=destination
-# ssh-add ~/.ssh/id_rsa
-
 parse_git_branch() {
-    branch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/')
-    echo "" ${branch}
+    branch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+
+    if [[ $branch =~ .*detached.* ]]; then
+        echo ${branch}
+        return
+    fi
+
+    commit=$(git rev-parse --short HEAD)
+    echo "(${branch} @ ${commit})"
 }
 
 auto_virtualenv() {
@@ -35,18 +43,94 @@ virtualenv_info() {
     fi
 }
 
+function timer_start {
+    timer=${timer:-$SECONDS}
+}
+
+function timer_stop {
+    timer_show=$(($SECONDS - $timer))
+    unset timer
+}
+
+trap 'timer_start' DEBUG
+
+prompt_command() {
+  timer_stop
+  auto_virtualenv
+  history -a
+  history -n
+}
+
+export PROMPT_COMMAND=prompt_command
+
 make_ps1() {
+    # 256 colour example thing="\[\033[0;38;5;TWO_FIVE_SIZEm\][test]\[\033[0m\] "
+    # rgb colour example thing="\[\033[0;38;2;R;G;Bm\][test]\[\033[0m\] "
+
     newline="\n"
-    host="\[\033[1;30m\][EC2]\[\033[0m\] "
+    duration="\[\033[1;30m\]{⏱️  \${timer_show}s}\[\033[0m\] "
+    host="\[\033[1;30m\][DEVAPP]\[\033[0m\] "
     virtualenv="\[\033[1;32m\]\$(virtualenv_info)\[\033[0m\]"
     working_path="\[\033[1;36m\]\w\[\033[0m\]"
-    git="\[\033[1;31m\]\$(parse_git_branch)\[\033[0m\]"
+    git=" \[\033[1;31m\]\$(parse_git_branch)\[\033[0m\]"
     arrow="\[\033[0;34m\]\n~>\[\033[0m\] "
-    echo "$newline$host$virtualenv$working_path$git$arrow"
+    echo "${duration}${host}${virtualenv}${working_path}${git}${arrow}"
 }
 
 
 PROMPT_DIRTRIM=5
 export VIRTUAL_ENV_DISABLE_PROMPT=1
-export PROMPT_COMMAND=auto_virtualenv
 export PS1=$(make_ps1);
+
+NEWLINE="\n"
+NO_COLOUR="\e[00m"
+PRINTING_OFF="\["
+PRINTING_ON="\]"
+PROMPT_COLOUR="\033[1;4;30m"
+PS1_PROMPT="\$"
+PS2_PROMPT=">"
+RESTORE_CURSOR_POSITION="\e[u"
+SAVE_CURSOR_POSITION="\e[s"
+SINGLE_SPACE=" "
+TIMESTAMP="\A"
+TIMESTAMP_PLACEHOLDER="\[\033[1;4;30m\]--:--\[\033[0m\]"
+
+move_cursor_to_start_of_ps1() {
+    command_rows=$(history 1 | wc -l)
+    if [ "$command_rows" -gt 1 ]; then
+        let vertical_movement=$command_rows+1
+    else
+        command=$(history 1 | sed 's/^\s*[0-9]*\s*//')
+        command_length=${#command}
+        ps1_prompt_length=${#PS1_PROMPT}
+        let total_length=$command_length+$ps1_prompt_length
+        let lines=$total_length/${COLUMNS}+1
+        let vertical_movement=$lines+1
+    fi
+    tput cuu $vertical_movement
+}
+
+PS0_ELEMENTS=(
+    "$SAVE_CURSOR_POSITION" "\$(move_cursor_to_start_of_ps1)"
+    "$PROMPT_COLOUR" "$TIMESTAMP" "$NO_COLOUR" "$RESTORE_CURSOR_POSITION"
+)
+PS0=$(IFS=; echo "${PS0_ELEMENTS[*]}")
+
+PS1_ELEMENTS=(
+    # Empty line after last command.
+    "$NEWLINE"
+
+    "$TIMESTAMP_PLACEHOLDER" "$SINGLE_SPACE" "$(make_ps1)"
+)
+PS1=$(IFS=; echo "${PS1_ELEMENTS[*]}")
+
+PS2_ELEMENTS=(
+    "$PRINTING_OFF" "$PROMPT_COLOUR" "$PRINTING_ON" "$PS2_PROMPT"
+    "$SINGLE_SPACE" "$PRINTING_OFF" "$NO_COLOUR" "$PRINTING_ON"
+)
+PS2=$(IFS=; echo "${PS2_ELEMENTS[*]}")
+
+shopt -s histverify
+
+export EDITOR=vim
+export COSMOS_OUTPUT_BASE='/home/tanwang/.docker-cache-cosmos/cd06ff233e37757a1e45484072a0de8f'
