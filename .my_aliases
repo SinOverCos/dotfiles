@@ -11,24 +11,31 @@ alias gc="egrep -rnsIS --color"
 alias l="gls -l -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
 alias ls="gls -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
 
-export HASTE_SERVER="https://paste.pinadmin.com/"
-export HASTE_SHARE_SERVER="https://paste.pinadmin.com/"
-alias haste="haste | sed 's/share\///g'"
+alias tree="tree --dirsfirst -C"
 
 export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!{.git}" 2> /dev/null'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_CTRL_R_OPTS="--layout=reverse"
+
 bind -x '"\C-p": fzf_result=$(fzf); [[ ! -z $fzf_result ]] && vim $fzf_result'
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 parse_git_branch() {
     branch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
 
     if [[ $branch =~ .*detached.* ]]; then
-        echo ${branch}
+        echo " ${branch}"
         return
     fi
 
-    commit=$(git rev-parse --short HEAD)
-    echo "(${branch} @ ${commit})"
+    commit=$(git rev-parse --short HEAD 2> /dev/null)
+
+    out="(${branch} @ ${commit})"
+    if [[ ${#out} == 5 ]]; then
+        return
+    fi
+
+    echo " $out"
 }
 
 auto_virtualenv() {
@@ -48,16 +55,17 @@ function timer_start {
 }
 
 function timer_stop {
-<<<<<<< HEAD
-    # echo "${SECONDS} | ${timer}"
     timer_show=$(($SECONDS - $timer))
-    # unset timer
+    unset timer
 }
 
-# trap 'timer_start' DEBUG
+trap 'timer_start' DEBUG
 
 prompt_command() {
-	auto_virtualenv
+  timer_stop
+  auto_virtualenv
+  history -a
+  history -n
 }
 
 export PROMPT_COMMAND=prompt_command
@@ -67,27 +75,19 @@ make_ps1() {
     # rgb colour example thing="\[\033[0;38;2;R;G;Bm\][test]\[\033[0m\] "
 
     newline="\n"
-    host="\[\033[1;30m\][PINS]\[\033[0m\] "
     duration="\[\033[1;30m\]{⏱️  \${timer_show}s}\[\033[0m\] "
-    host="\[\033[1;30m\][DEVAPP]\[\033[0m\] "
+    host="\[\033[1;30m\][\$(hostname -s)]\[\033[0m\] "
     virtualenv="\[\033[1;32m\]\$(virtualenv_info)\[\033[0m\]"
     working_path="\[\033[1;36m\]\w\[\033[0m\]"
-    git=" \[\033[1;31m\]\$(parse_git_branch)\[\033[0m\]"
+    git="\[\033[1;31m\]\$(parse_git_branch)\[\033[0m\]"
     arrow="\[\033[0;34m\]\n~>\[\033[0m\] "
-    echo "${newline}${host}${duration}${virtualenv}${working_path}${git}${arrow}"
+    echo "${duration}${host}${virtualenv}${working_path}${git}${arrow}"
 }
 
-[ -f /opt/homebrew/etc/bash_completion.d/git-completion.bash ] && . /opt/homebrew/etc/bash_completion.d/git-completion.bash
 
 PROMPT_DIRTRIM=5
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 export PS1=$(make_ps1);
-<<<<<<< HEAD
-export HASTE_SERVER="https://paste.pinadmin.com/"
-export HASTE_SHARE_SERVER="https://paste.pinadmin.com/"
-alias haste="haste | sed 's/share\///g'"
-alias mgit='GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa_personal_github_real.pub" git'
-=======
 
 NEWLINE="\n"
 NO_COLOUR="\e[00m"
@@ -140,4 +140,17 @@ PS2=$(IFS=; echo "${PS2_ELEMENTS[*]}")
 shopt -s histverify
 
 export EDITOR=vim
+
+# Eternal bash history.
+export HISTFILESIZE=
+export HISTSIZE=
+# export HISTTIMEFORMAT="[%F %T] "
+# Change the file location because certain bash sessions truncate .bash_history file upon close.
+# http://superuser.com/questions/575479/bash-history-truncated-to-500-lines-on-each-login
+export HISTFILE=~/.bash_eternal_history
+# Force prompt to write history after every command.
+# http://superuser.com/questions/20900/bash-history-loss
+# PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
+
+export PATH=~/.local/bin:$PATH
 
