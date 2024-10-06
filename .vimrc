@@ -12,7 +12,7 @@ set path+=**
 " show all options when fuzzy finding
 set wildmenu
 " ignore files
-set wildignore=*.pyc,__init__.py,*/node_modules/*
+set wildignore=*.pyc,*/node_modules/*
 " do not autocomplete from included files
 set complete-=i
 " grab current file path
@@ -51,6 +51,8 @@ set nowrap
 autocmd FileType css setlocal shiftwidth=2 tabstop=2 softtabstop=2
 autocmd FileType html setlocal shiftwidth=2 tabstop=2 softtabstop=2
 autocmd FileType javascript setlocal shiftwidth=2 tabstop=2 softtabstop=2
+autocmd FileType java setlocal shiftwidth=2 tabstop=2 softtabstop=2
+autocmd FileType sh setlocal shiftwidth=2 tabstop=2 softtabstop=2
 
 
 " easier pane navigation
@@ -69,7 +71,7 @@ set number
 
 set mouse=a
 " allow dragging inside tmux
-set ttymouse=xterm2
+set ttymouse=sgr " mac
 
 set backspace=indent,eol,start
 
@@ -109,7 +111,7 @@ nmap '' ''gb
 let g:netrw_liststyle=3
 " CTRL-N for NERDTree
 nnoremap <C-n> :NERDTreeToggle<CR>
-let NERDTreeIgnore = ["\.pyc$", "^__init__.py$"]
+let NERDTreeIgnore = ["\.pyc$"]
 
 
 " text editing
@@ -179,7 +181,7 @@ colorscheme railscasts
 filetype plugin indent on
 
 let g:airline_section_x = ""
-let g:airline_theme = "luna"
+let g:airline_theme = "bubblegum"
 let g:airline_section_z = "%p%%  %l/%L  ln: %v"
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#whitespace#enabled = 0

@@ -1,17 +1,25 @@
 [diff "pandoc"]
     textconv = pandoc --to=markdown
     prompt = false
+
 [alias]
-    wdiff = diff --word-diff=color --unified=1
     lg = log \
         --graph \
         --branches \
         --date=format-local:'%A, %d %B %Y at %I:%M %p' \
         --format=format:'%C(bold green)%h%C(reset) %C(white)%s%C(reset) %C(blue)(%ad)%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'
+    wdiff = diff --word-diff=color --unified=1
+    amend = commit -a --amend --no-edit
+	sl = smartlog
+
 [user]
-    name = Tan Wang
-    email = tanw.mini@gmail.com
+	name = tanwang
+	email = tanwang@pinterest.com
+
 [core]
     editor = vim
+
 [push]
-    default = upstream
+	default = current
+[pull]
+	default = current
