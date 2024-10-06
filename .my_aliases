@@ -11,13 +11,24 @@ alias gc="egrep -rnsIS --color"
 alias l="gls -l -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
 alias ls="gls -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
 
+export HASTE_SERVER="https://paste.pinadmin.com/"
+export HASTE_SHARE_SERVER="https://paste.pinadmin.com/"
+alias haste="haste | sed 's/share\///g'"
+
 export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!{.git}" 2> /dev/null'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 bind -x '"\C-p": fzf_result=$(fzf); [[ ! -z $fzf_result ]] && vim $fzf_result'
 
 parse_git_branch() {
-    branch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/')
-    echo "" ${branch}
+    branch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+
+    if [[ $branch =~ .*detached.* ]]; then
+        echo ${branch}
+        return
+    fi
+
+    commit=$(git rev-parse --short HEAD)
+    echo "(${branch} @ ${commit})"
 }
 
 auto_virtualenv() {
@@ -37,6 +48,7 @@ function timer_start {
 }
 
 function timer_stop {
+<<<<<<< HEAD
     # echo "${SECONDS} | ${timer}"
     timer_show=$(($SECONDS - $timer))
     # unset timer
@@ -45,7 +57,6 @@ function timer_stop {
 # trap 'timer_start' DEBUG
 
 prompt_command() {
-	# timer_stop
 	auto_virtualenv
 }
 
@@ -57,10 +68,11 @@ make_ps1() {
 
     newline="\n"
     host="\[\033[1;30m\][PINS]\[\033[0m\] "
-    # duration="\[\033[1;4;30m\]\${timer_show}s\[\033[0m\] "
+    duration="\[\033[1;30m\]{⏱️  \${timer_show}s}\[\033[0m\] "
+    host="\[\033[1;30m\][DEVAPP]\[\033[0m\] "
     virtualenv="\[\033[1;32m\]\$(virtualenv_info)\[\033[0m\]"
     working_path="\[\033[1;36m\]\w\[\033[0m\]"
-    git="\[\033[1;31m\]\$(parse_git_branch)\[\033[0m\]"
+    git=" \[\033[1;31m\]\$(parse_git_branch)\[\033[0m\]"
     arrow="\[\033[0;34m\]\n~>\[\033[0m\] "
     echo "${newline}${host}${duration}${virtualenv}${working_path}${git}${arrow}"
 }
@@ -70,7 +82,62 @@ make_ps1() {
 PROMPT_DIRTRIM=5
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 export PS1=$(make_ps1);
+<<<<<<< HEAD
 export HASTE_SERVER="https://paste.pinadmin.com/"
 export HASTE_SHARE_SERVER="https://paste.pinadmin.com/"
 alias haste="haste | sed 's/share\///g'"
 alias mgit='GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa_personal_github_real.pub" git'
+=======
+
+NEWLINE="\n"
+NO_COLOUR="\e[00m"
+PRINTING_OFF="\["
+PRINTING_ON="\]"
+PROMPT_COLOUR="\033[1;4;30m"
+PS1_PROMPT="\$"
+PS2_PROMPT=">"
+RESTORE_CURSOR_POSITION="\e[u"
+SAVE_CURSOR_POSITION="\e[s"
+SINGLE_SPACE=" "
+TIMESTAMP="\A"
+TIMESTAMP_PLACEHOLDER="\[\033[1;4;30m\]--:--\[\033[0m\]"
+
+move_cursor_to_start_of_ps1() {
+    command_rows=$(history 1 | wc -l)
+    if [ "$command_rows" -gt 1 ]; then
+        let vertical_movement=$command_rows+1
+    else
+        command=$(history 1 | sed 's/^\s*[0-9]*\s*//')
+        command_length=${#command}
+        ps1_prompt_length=${#PS1_PROMPT}
+        let total_length=$command_length+$ps1_prompt_length
+        let lines=$total_length/${COLUMNS}+1
+        let vertical_movement=$lines+1
+    fi
+    tput cuu $vertical_movement
+}
+
+PS0_ELEMENTS=(
+    "$SAVE_CURSOR_POSITION" "\$(move_cursor_to_start_of_ps1)"
+    "$PROMPT_COLOUR" "$TIMESTAMP" "$NO_COLOUR" "$RESTORE_CURSOR_POSITION"
+)
+PS0=$(IFS=; echo "${PS0_ELEMENTS[*]}")
+
+PS1_ELEMENTS=(
+    # Empty line after last command.
+    "$NEWLINE"
+
+    "$TIMESTAMP_PLACEHOLDER" "$SINGLE_SPACE" "$(make_ps1)"
+)
+PS1=$(IFS=; echo "${PS1_ELEMENTS[*]}")
+
+PS2_ELEMENTS=(
+    "$PRINTING_OFF" "$PROMPT_COLOUR" "$PRINTING_ON" "$PS2_PROMPT"
+    "$SINGLE_SPACE" "$PRINTING_OFF" "$NO_COLOUR" "$PRINTING_ON"
+)
+PS2=$(IFS=; echo "${PS2_ELEMENTS[*]}")
+
+shopt -s histverify
+
+export EDITOR=vim
+
