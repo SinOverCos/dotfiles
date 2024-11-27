@@ -154,3 +154,6 @@ export HISTFILE=~/.bash_eternal_history
 
 export PATH=~/.local/bin:$PATH
 
+# For spacedentist spr
+export PATH="/home/tanwang/.cargo/bin:$PATH"
+

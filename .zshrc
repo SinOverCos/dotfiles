@@ -165,6 +165,9 @@ export HASTE_SERVER="https://paste.pinadmin.com/"
 export HASTE_SHARE_SERVER="https://paste.pinadmin.com/"
 alias haste="haste | sed 's/share\///g'"
 
+# For spacedentist spr
+export PATH="/home/tanwang/.cargo/bin:$PATH"
+
 ######################## CTRL+W deletion ########################
 # Create a new widget.
 zle -N backward-kill-space-word
