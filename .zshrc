@@ -165,6 +165,9 @@ export HASTE_SERVER="https://paste.pinadmin.com/"
 export HASTE_SHARE_SERVER="https://paste.pinadmin.com/"
 alias haste="haste | sed 's/share\///g'"
 
+# otherwise EOL not having a newline prints a `%`
+export PROMPT_EOL_MARK=''
+
 # For spacedentist spr
 export PATH="/home/tanwang/.cargo/bin:$PATH"
 
