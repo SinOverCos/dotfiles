@@ -164,3 +164,25 @@ export VIRTUAL_ENV_DISABLE_PROMPT=1
 export HASTE_SERVER="https://paste.pinadmin.com/"
 export HASTE_SHARE_SERVER="https://paste.pinadmin.com/"
 alias haste="haste | sed 's/share\///g'"
+
+######################## CTRL+W deletion ########################
+# Create a new widget.
+zle -N backward-kill-space-word
+backward-kill-space-word() {
+  # Inform the line editor that this widget will kill text.
+  zle -f kill
+# Set $WORDCHARS for this command only. 
+  WORDCHARS='*?_-.[]~=/&;:!#$%^(){}<>' zle .backward-kill-word
+}
+
+# See comments above.
+zle -N backward-kill-bash-word
+backward-kill-bash-word() {
+  zle -f kill
+  WORDCHARS='' zle .backward-kill-word
+}
+
+# Bind the widgets to keys.
+bindkey   '^W' backward-kill-space-word
+#################################################################
+

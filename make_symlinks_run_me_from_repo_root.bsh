@@ -1,4 +1,7 @@
-ln -s $(readlink -f .tmux.conf) ~/.tmux.conf
 ln -s $(readlink -f .gitconfig) ~/.gitconfig
-ln -s $(readlink -f .vimrc) ~/.vimrc
 ln -s $(readlink -f .my_aliases) ~/.my_aliases
+ln -s $(readlink -f .my_zshrc) ~/.my_zshrc
+ln -s $(readlink -f .p10k.zsh) ~/.p10k.zsh
+ln -s $(readlink -f .tmux.conf) ~/.tmux.conf
+ln -s $(readlink -f .vimrc) ~/.vimrc
+ln -s $(readlink -f .zshrc) ~/.zshrc
