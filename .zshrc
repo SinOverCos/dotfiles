@@ -171,6 +171,9 @@ export PROMPT_EOL_MARK=''
 # For spacedentist spr
 export PATH="/home/tanwang/.cargo/bin:$PATH"
 
+# Might have to download the binary directly, since apt has a really old version.
+source <(fzf --zsh)
+
 ######################## CTRL+W deletion ########################
 # Create a new widget.
 zle -N backward-kill-space-word

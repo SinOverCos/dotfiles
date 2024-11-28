@@ -18,7 +18,8 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_CTRL_R_OPTS="--layout=reverse"
 
 bind -x '"\C-p": fzf_result=$(fzf); [[ ! -z $fzf_result ]] && vim $fzf_result'
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+# Might have to download the binary directly, since apt has a really old version.
+eval "$(fzf --bash)"
 
 parse_git_branch() {
     branch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
