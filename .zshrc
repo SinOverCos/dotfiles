@@ -173,6 +173,8 @@ export PATH="/home/tanwang/.cargo/bin:$PATH"
 
 # Might have to download the binary directly, since apt has a really old version.
 source <(fzf --zsh)
+# To put the input field at the top
+FZF_DEFAULT_OPTS=--reverse
 
 ######################## CTRL+W deletion ########################
 # Create a new widget.
