@@ -173,6 +173,10 @@ alias haste="haste | sed 's/share\///g'"
 # otherwise EOL not having a newline prints a `%`
 export PROMPT_EOL_MARK=''
 
+# Otherwise it eats the space before the pipe after tab-completing a file name
+# https://superuser.com/a/613817/592828
+ZLE_REMOVE_SUFFIX_CHARS=""
+
 # For spacedentist spr
 export PATH="/home/tanwang/.cargo/bin:$PATH"
 
