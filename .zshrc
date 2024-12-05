@@ -156,8 +156,13 @@ alias rgi="rg --pretty --ignore-case --glob '!tags' --max-columns 300 "
 alias g="egrep -rnisIS --color"
 alias gc="egrep -rnsIS --color"
 
-alias l="gls -l -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
-alias ls="gls -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
+if [[ $(uname) == Darwin ]]; then
+    alias l="gls -l -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
+    alias ls="gls -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
+else
+    alias l="ls -l -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
+    alias ls="ls -h --color --group-directories-first  --dereference-command-line-symlink-to-dir --dereference-command-line --dereference"
+fi
 
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 
