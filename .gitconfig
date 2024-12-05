@@ -24,3 +24,6 @@
 [pull]
 	default = current
 
+[pager]
+    branch = false
+
