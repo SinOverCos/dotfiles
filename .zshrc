@@ -182,8 +182,10 @@ export PATH="/home/tanwang/.cargo/bin:$PATH"
 
 # Might have to download the binary directly, since apt has a really old version.
 source <(fzf --zsh)
+
 # To put the input field at the top
-export FZF_DEFAULT_OPTS=--reverse
+export FZF_DEFAULT_OPTS=--reverse  # linux
+export FZF_CTRL_R_OPTS="--layout=reverse"  # mac
 
 ######################## CTRL+W deletion ########################
 # Create a new widget.
