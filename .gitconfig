@@ -27,3 +27,8 @@
 [pager]
     branch = false
 
+# required for spacedentist/spr
+# https://github.com/spacedentist/spr/issues/191
+[feature]
+   manyFiles = false
+
