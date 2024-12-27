@@ -252,3 +252,7 @@ let g:airline#extensions#syntastic#enabled = 1
 
 
 let g:snipMate = { 'snippet_version' : 1 }
+
+" Disable bell beeps and visual bell flashing
+set belloff=all
+
