@@ -132,7 +132,7 @@ filetype plugin indent on
 
 """"""" PLUGIN-SPECIFIC STUFF """""""
 
-let g:pathogen_disabled = ['syntastic', 'vim-gitgutter']
+let g:pathogen_disabled = ['syntastic', 'vim-gitgutter', 'ale']
 execute pathogen#infect()
 execute pathogen#helptags()
 
