@@ -166,10 +166,6 @@ fi
 
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 
-export HASTE_SERVER="https://paste.pinadmin.com/"
-export HASTE_SHARE_SERVER="https://paste.pinadmin.com/"
-alias haste="haste | sed 's/share\///g'"
-
 alias aws="aws2"
 
 # otherwise EOL not having a newline prints a `%`
@@ -188,16 +184,6 @@ source <(fzf --zsh)
 # To put the input field at the top
 export FZF_DEFAULT_OPTS=--reverse  # linux
 export FZF_CTRL_R_OPTS="--layout=reverse"  # mac
-
-if [[ $(hostname) =~ devrestricted-tanwang ]]; then
-    export PYENV_ROOT="$HOME/.pyenv"
-    [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init - zsh)"
-
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-fi
 
 ######################## CTRL+W deletion ########################
 # Create a new widget.
@@ -218,5 +204,36 @@ backward-kill-bash-word() {
 
 # Bind the widgets to keys.
 bindkey   '^W' backward-kill-space-word
+#################################################################
+
+######################## Pinterest Stuff ########################
+# Haste
+export HASTE_SERVER="https://paste.pinadmin.com/"
+export HASTE_SHARE_SERVER="https://paste.pinadmin.com/"
+alias haste="haste | sed 's/share\///g'"
+
+
+if [[ $(hostname) =~ devrestricted-tanwang ]]; then
+    export PYENV_ROOT="$HOME/.pyenv"
+    [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init - zsh)"
+
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+fi
+
+
+# Fix SSH auth socket location so agent forwarding works with tmux
+# https://w.pinadmin.com/pages/viewpage.action?pageId=465732721
+if test "$SSH_AUTH_SOCK"; then
+    if test -z "$TMUX"; then
+        if [[ $TERM_PROGRAM != "vscode" ]]; then
+            # echo 'Linking ~/.ssh/ssh_auth_sock to $SSH_AUTH_SOCK'
+            ln -sf $SSH_AUTH_SOCK ~/.ssh/ssh_auth_sock
+        fi
+    fi
+fi
+
 #################################################################
 
