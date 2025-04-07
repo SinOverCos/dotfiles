@@ -226,11 +226,13 @@ fi
 
 # Fix SSH auth socket location so agent forwarding works with tmux
 # https://w.pinadmin.com/pages/viewpage.action?pageId=465732721
-if test "$SSH_AUTH_SOCK"; then
-    if test -z "$TMUX"; then
-        if [[ $TERM_PROGRAM != "vscode" ]]; then
-            # echo 'Linking ~/.ssh/ssh_auth_sock to $SSH_AUTH_SOCK'
-            ln -sf $SSH_AUTH_SOCK ~/.ssh/ssh_auth_sock
+if [[ $(hostname) =~ devrestricted-tanwang ]]; then
+    if test "$SSH_AUTH_SOCK"; then
+        if test -z "$TMUX"; then
+            if [[ $TERM_PROGRAM != "vscode" ]]; then
+                # echo 'Linking ~/.ssh/ssh_auth_sock to $SSH_AUTH_SOCK'
+                ln -sf $SSH_AUTH_SOCK ~/.ssh/ssh_auth_sock
+            fi
         fi
     fi
 fi
