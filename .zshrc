@@ -239,3 +239,11 @@ fi
 
 #################################################################
 
+
+# Added by Windsurf
+export PATH="/Users/tanwang/.codeium/windsurf/bin:$PATH"
+
+# To make p10k and Cursor play nice
+# https://pinterest.slack.com/archives/C08SCU6CW3G/p1749566241945479?thread_ts=1749222888.950959&cid=C08SCU6CW3G
+export COMPOSER_NO_INTERACTION=1
+
