@@ -140,7 +140,7 @@ export LS_COLORS=$(printf "%s" "${ls_colors_pieces[@]}")
 
 
 auto_virtualenv() {
-    command=$(python3 ~/auto-virtualenv/venv_toggle_command.py --command)
+    command=$(python3 ~/code/auto-virtualenv/venv_toggle_command.py --command)
     eval $command
 }
 
@@ -246,4 +246,9 @@ export PATH="/Users/tanwang/.codeium/windsurf/bin:$PATH"
 # To make p10k and Cursor play nice
 # https://pinterest.slack.com/archives/C08SCU6CW3G/p1749566241945479?thread_ts=1749222888.950959&cid=C08SCU6CW3G
 export COMPOSER_NO_INTERACTION=1
+
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/tanwang/.lmstudio/bin"
+# End of LM Studio CLI section
 

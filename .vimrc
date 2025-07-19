@@ -237,7 +237,6 @@ let g:syntastic_c_checkers = ["gcc"]
 let g:syntastic_javascript_checkers=['eslint']
 
 
-
 colorscheme railscasts
 
 
