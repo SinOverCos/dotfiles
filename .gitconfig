@@ -1,3 +1,7 @@
+[user]
+    name = Tan Wang
+    email = tanw.mini@gmail.com
+
 [diff "pandoc"]
     textconv = pandoc --to=markdown
     prompt = false
@@ -27,9 +31,4 @@
 # https://github.com/spacedentist/spr/issues/191
 [feature]
     manyFiles = false
-
-[includeIf "hostname:tan-mba.local"]
-    path = ~/code/dotfiles/gitconfigs/personal/.gitconfig
-[includeIf "hostname:tanwang-3XM4VXX.dyn.pinadmin.com"]
-    path = ~/code/dotfiles/gitconfigs/work/.gitconfig
 
