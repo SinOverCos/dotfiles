@@ -12,10 +12,6 @@
     amend = commit -a --amend --no-edit
 	sl = smartlog
 
-[user]
-	name = tanwang
-	email = tanwang@pinterest.com
-
 [core]
     editor = vim
 
@@ -30,5 +26,10 @@
 # required for spacedentist/spr
 # https://github.com/spacedentist/spr/issues/191
 [feature]
-   manyFiles = false
+    manyFiles = false
+
+[includeIf "hostname:tan-mba.local"]
+    path = ~/code/dotfiles/gitconfigs/personal/.gitconfig
+[includeIf "hostname:tanwang-3XM4VXX.dyn.pinadmin.com"]
+    path = ~/code/dotfiles/gitconfigs/work/.gitconfig
 
