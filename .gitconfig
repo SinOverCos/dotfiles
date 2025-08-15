@@ -1,3 +1,7 @@
+[user]
+    name = Tan Wang
+    email = tanw.mini@gmail.com
+
 [diff "pandoc"]
     textconv = pandoc --to=markdown
     prompt = false
@@ -11,10 +15,6 @@
     wdiff = diff --word-diff=color --unified=1
     amend = commit -a --amend --no-edit
 	sl = smartlog
-
-[user]
-	name = tanwang
-	email = tanwang@pinterest.com
 
 [core]
     editor = vim
@@ -30,5 +30,5 @@
 # required for spacedentist/spr
 # https://github.com/spacedentist/spr/issues/191
 [feature]
-   manyFiles = false
+    manyFiles = false
 
