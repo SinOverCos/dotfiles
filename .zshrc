@@ -178,6 +178,7 @@ ZLE_REMOVE_SUFFIX_CHARS=""
 # For spacedentist spr
 export PATH="/home/tanwang/.cargo/bin:$PATH"
 
+export PATH="/home/tanwang/.fzf/bin:$PATH"
 # Might have to download the binary directly, since apt has a really old version.
 source <(fzf --zsh)
 
@@ -237,15 +238,16 @@ if [[ $(hostname) =~ devrestricted-tanwang ]]; then
     fi
 fi
 
-#################################################################
-
-
 # Added by Windsurf
 export PATH="/Users/tanwang/.codeium/windsurf/bin:$PATH"
 
 # To make p10k and Cursor play nice
 # https://pinterest.slack.com/archives/C08SCU6CW3G/p1749566241945479?thread_ts=1749222888.950959&cid=C08SCU6CW3G
 export COMPOSER_NO_INTERACTION=1
+
+export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
+
+#################################################################
 
 
 # Added by LM Studio CLI (lms)
