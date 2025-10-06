@@ -1,3 +1,11 @@
+# To make p10k and Cursor play nice
+# https://pinterest.slack.com/archives/C08SCU6CW3G/p1749566241945479?thread_ts=1749222888.950959&cid=C08SCU6CW3G
+# export COMPOSER_NO_INTERACTION=1
+
+if [[ "$PAGER" == "head -n 10000 | cat" || "$COMPOSER_NO_INTERACTION" == "1" ]]; then
+    return
+fi
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -228,6 +236,7 @@ fi
 # Fix SSH auth socket location so agent forwarding works with tmux
 # https://w.pinadmin.com/pages/viewpage.action?pageId=465732721
 if [[ $(hostname) =~ devrestricted-tanwang ]]; then
+    # export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
     if test "$SSH_AUTH_SOCK"; then
         if test -z "$TMUX"; then
             if [[ $TERM_PROGRAM != "vscode" ]]; then
@@ -240,12 +249,6 @@ fi
 
 # Added by Windsurf
 export PATH="/Users/tanwang/.codeium/windsurf/bin:$PATH"
-
-# To make p10k and Cursor play nice
-# https://pinterest.slack.com/archives/C08SCU6CW3G/p1749566241945479?thread_ts=1749222888.950959&cid=C08SCU6CW3G
-export COMPOSER_NO_INTERACTION=1
-
-export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
 
 #################################################################
 
