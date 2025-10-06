@@ -257,3 +257,7 @@ export PATH="/Users/tanwang/.codeium/windsurf/bin:$PATH"
 export PATH="$PATH:/Users/tanwang/.lmstudio/bin"
 # End of LM Studio CLI section
 
+
+if [[ $(hostname) =~ tan-mba ]]; then
+    alias python3.13="/opt/homebrew/bin/python3"
+fi
