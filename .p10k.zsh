@@ -198,7 +198,7 @@
 
   ################################[ prompt_char: prompt symbol ]################################
   # Transparent background.
-  typeset -g POWERLEVEL9K_PROMPT_CHAR_BACKGROUND=000
+  typeset -g POWERLEVEL9K_PROMPT_CHAR_BACKGROUND=
   # Green prompt symbol if the last command succeeded.
   typeset -g POWERLEVEL9K_PROMPT_CHAR_OK_{VIINS,VICMD,VIVIS,VIOWR}_FOREGROUND=093
   # Red prompt symbol if the last command failed.
