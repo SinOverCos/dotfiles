@@ -1,6 +1,6 @@
 [user]
     name = Tan Wang
-    email = tanw.mini@gmail.com
+    email = tanwang@pinterest.com
 
 [diff "pandoc"]
     textconv = pandoc --to=markdown
@@ -31,4 +31,7 @@
 # https://github.com/spacedentist/spr/issues/191
 [feature]
     manyFiles = false
+
+[advice]
+   skippedCherryPicks = false
 

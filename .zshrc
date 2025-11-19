@@ -221,22 +221,31 @@ export HASTE_SERVER="https://paste.pinadmin.com/"
 export HASTE_SHARE_SERVER="https://paste.pinadmin.com/"
 alias haste="haste | sed 's/share\///g'"
 
+
 if [[ $(hostname) =~ devrestricted-tanwang ]]; then
-    # Fix SSH auth socket location so agent forwarding works with tmux
-    # https://w.pinadmin.com/pages/viewpage.action?pageId=465732721
-    # export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
-    if test "$SSH_AUTH_SOCK"; then
-        if test -z "$TMUX"; then
-            if [[ $TERM_PROGRAM != "vscode" ]]; then
-                ln -sf $SSH_AUTH_SOCK ~/.ssh/ssh_auth_sock
-            fi
-        fi
-    fi
+    export PATH="/home/tanwang/.local/bin/pinci:$PATH"
 
     export PYENV_ROOT="$HOME/.pyenv"
     [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
     eval "$(pyenv init - zsh)"
+
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+    # Fix SSH auth socket location so agent forwarding works with tmux
+    # https://w.pinadmin.com/pages/viewpage.action?pageId=465732721
+    if test "$SSH_AUTH_SOCK"; then
+        if test -z "$TMUX"; then
+            # TERM_PROGRAM=vscode for Cursor, too.
+            if [[ $TERM_PROGRAM != "vscode" ]]; then
+                ln -sf $SSH_AUTH_SOCK ~/.ssh/ssh_auth_sock
+            fi
+        fi
+        export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
+    fi
 fi
+
 
 if [[ $(hostname) =~ tanwang-3XM4VXX ]]; then
     export PATH="/Users/tanwang/.codeium/windsurf/bin:$PATH"
