@@ -133,8 +133,10 @@ filetype plugin indent on
 """"""" PLUGIN-SPECIFIC STUFF """""""
 
 let g:pathogen_disabled = ['syntastic', 'vim-gitgutter', 'ale']
-execute pathogen#infect()
-execute pathogen#helptags()
+if !empty(globpath(&runtimepath, 'autoload/pathogen.vim'))
+  execute pathogen#infect()
+  execute pathogen#helptags()
+endif
 
 
 " for fuzzy finding
@@ -237,7 +239,11 @@ let g:syntastic_c_checkers = ["gcc"]
 let g:syntastic_javascript_checkers=['eslint']
 
 
-colorscheme railscasts
+if !empty(globpath(&runtimepath, 'colors/railscasts.vim'))
+  colorscheme railscasts
+else
+  colorscheme default
+endif
 
 
 let g:airline_section_x = ""
@@ -254,4 +260,3 @@ let g:snipMate = { 'snippet_version' : 1 }
 
 " Disable bell beeps and visual bell flashing
 set belloff=all
-
