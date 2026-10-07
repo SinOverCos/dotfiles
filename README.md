@@ -8,6 +8,7 @@ outside the coding sandbox:
 cd ~/code/dotfiles
 python3 sync_dotfiles.py status  # inspect all three working trees
 python3 sync_dotfiles.py sync    # commit, merge, publish, and update each checkout
+python3 sync_dotfiles.py resume  # reopen Codex for an unfinished Mac merge
 ```
 
 The Mac is the hub. `sync` commits tracked edits and new files that Git does
@@ -28,8 +29,10 @@ flags. You can give Codex input. After it stages the resolutions, exit Codex;
 the script checks that the conflict is resolved, commits the merge, and
 continues. Set `DOTFILES_SYNC_CODEX_COMMAND` to override the alias if needed.
 If Codex exits without resolving everything, Git leaves the merge in the Mac
-checkout and nothing new is pushed to GitHub. Resolve the conflict, `git add`
-the files, `git commit`, then rerun `python3 sync_dotfiles.py sync`. If a devapp
-changes during the run, the helper stops before overwriting it. Rerunning
-includes its new changes. Existing home dotfile symlinks point at their local
-checkout.
+checkout and nothing new is pushed to GitHub. Run `python3 sync_dotfiles.py
+resume` to reopen Codex and continue the sync, or resolve and commit the merge
+manually before running `sync` again. The helper reads the committed Mac
+`.zshrc` for `cx`, so conflict markers in the working copy do not prevent Codex
+from starting. If a devapp changes during the run, the helper stops before
+overwriting it. Rerunning includes its new changes. Existing home dotfile
+symlinks point at their local checkout.

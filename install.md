@@ -19,3 +19,18 @@ Homebrew
 
 ## Linux
 
+### tmux-resurrect
+
+The shared `.tmux.conf` loads Resurrect from `~/code/tmux-resurrect`, with
+`~` expanded on each machine. Run this on the devapp (and on data-devapp if
+you use tmux there):
+
+```sh
+mkdir -p "$HOME/code"
+git clone https://github.com/tmux-plugins/tmux-resurrect.git "$HOME/code/tmux-resurrect"
+tmux source-file "$HOME/.tmux.conf"
+```
+
+If the checkout already exists, run `git -C ~/code/tmux-resurrect pull --ff-only`
+instead of cloning. With this config's `Ctrl-a` prefix, save a
+session with `Ctrl-a Ctrl-s` and restore one with `Ctrl-a Ctrl-r`.

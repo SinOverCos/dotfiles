@@ -206,14 +206,17 @@ def merge_in_progress():
 def codex_command():
     override = os.environ.get("DOTFILES_SYNC_CODEX_COMMAND")
     if override is None:
+        # The working copy may contain merge markers in .zshrc. HEAD is the
+        # Mac's committed version from just before the failed merge.
+        zshrc = git("show", "HEAD:.zshrc")
         alias, _ = run(
             (
                 "zsh", "-f", "-c",
-                'source "$1" >/dev/null 2>&1; '
+                'source /dev/stdin >/dev/null 2>&1; '
                 '[[ -n ${aliases[cx]-} ]] || exit 2; '
                 'print -r -- "${aliases[cx]}"',
-                "dotfiles-sync", str(REPO / ".zshrc"),
-            )
+            ),
+            input_text=zshrc,
         )
         command = shlex.split(alias)
     else:
@@ -234,10 +237,12 @@ def launch_codex(label):
         f"A Git merge of {label} into this dotfiles checkout has conflicts. "
         "Inspect git status and resolve every conflict, preserving the intended "
         "changes from both sides. Ask me interactively when intent is ambiguous. "
-        "Stage all resolved files with git add. Do not commit, abort the merge, "
-        "switch branches, push, or edit unrelated files. When everything is "
-        "resolved and staged, tell me to exit this Codex session; the sync "
-        "script will finish the merge and continue."
+        "Review auto-merged files too for accidental duplicate settings. Stage "
+        "all resolved files with git add and run git diff --cached --check. "
+        "Do not commit, abort the merge, switch branches, push, or edit "
+        "unrelated files. When everything is resolved and staged, tell me to "
+        "exit this Codex session; the sync script will finish the merge and "
+        "continue."
     )
     print(
         f"Opening interactive Codex for the {label} merge with "
@@ -265,6 +270,31 @@ def is_ancestor(revision):
     return result.returncode == 0
 
 
+def resolve_with_codex(label, revision, branch):
+    launch_codex(label)
+    if local_branch() != branch:
+        raise SyncError("Codex changed the Mac branch; stop and inspect Git state")
+    if git("ls-files", "-u"):
+        raise SyncError(
+            "Codex left unresolved conflicts; resolve, stage, and commit "
+            "the merge on the Mac before rerunning sync"
+        )
+    if merge_in_progress():
+        if git("diff", "--name-only") or git(
+            "ls-files", "--others", "--exclude-standard"
+        ):
+            raise SyncError(
+                "Codex left unstaged files; stage and commit the merge on "
+                "the Mac before rerunning sync"
+            )
+        git("diff", "--cached", "--check")
+        git("commit", "--no-edit")
+    if not is_ancestor(revision):
+        raise SyncError(f"The {label} merge was not completed on the Mac")
+    if git("diff", "--name-only") or git("diff", "--cached", "--name-only"):
+        raise SyncError("Codex left new Mac edits after resolving the merge")
+
+
 def merge_ref(label, revision):
     before = git("rev-parse", "HEAD")
     if before == revision:
@@ -276,27 +306,7 @@ def merge_ref(label, revision):
     except SyncError:
         if not merge_in_progress() or not git("ls-files", "-u"):
             raise
-        launch_codex(label)
-        if local_branch() != branch:
-            raise SyncError("Codex changed the Mac branch; stop and inspect Git state")
-        if git("ls-files", "-u"):
-            raise SyncError(
-                "Codex left unresolved conflicts; resolve, stage, and commit "
-                "the merge on the Mac before rerunning sync"
-            )
-        if merge_in_progress():
-            if git("diff", "--name-only") or git(
-                "ls-files", "--others", "--exclude-standard"
-            ):
-                raise SyncError(
-                    "Codex left unstaged files; stage and commit the merge on "
-                    "the Mac before rerunning sync"
-                )
-            git("commit", "--no-edit")
-        if not is_ancestor(revision):
-            raise SyncError(f"The {label} merge was not completed on the Mac")
-        if git("diff", "--name-only") or git("diff", "--cached", "--name-only"):
-            raise SyncError("Codex left new Mac edits after resolving the merge")
+        resolve_with_codex(label, revision, branch)
     print(f"Merged {label}")
 
 
@@ -355,21 +365,34 @@ def sync():
     print("All tracked and nonignored new files are synced across all three checkouts")
 
 
+def resume():
+    if sys.platform != "darwin":
+        raise SyncError("Run resume from the Mac, outside the devapp sandboxes")
+    if not merge_in_progress():
+        raise SyncError("No merge is in progress on the Mac; run sync instead")
+    branch = local_branch()
+    revision = git("rev-parse", "MERGE_HEAD")
+    resolve_with_codex("current merge", revision, branch)
+    sync()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("status", "sync"))
+    parser.add_argument("command", choices=("status", "sync", "resume"))
     args = parser.parse_args()
     try:
         if args.command == "status":
             show_status(local_branch())
+        elif args.command == "resume":
+            resume()
         else:
             sync()
     except SyncError as exc:
         print(f"Sync stopped: {exc}", file=sys.stderr)
-        if args.command == "sync":
+        if args.command in ("sync", "resume"):
             print(
-                "If Git left a merge in progress on the Mac, resolve it, commit, "
-                "then rerun sync.",
+                "If Git left a merge in progress on the Mac, run "
+                "python3 sync_dotfiles.py resume from a regular Mac Terminal.",
                 file=sys.stderr,
             )
         return 1

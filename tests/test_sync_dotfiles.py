@@ -62,7 +62,7 @@ class SyncIntegrationTest(unittest.TestCase):
             input_text=script,
         )
 
-    def run_sync(self):
+    def run_sync(self, command=None):
         with mock.patch.object(sync_dotfiles, "REPO", self.repos["mac"]), mock.patch.object(
             sync_dotfiles, "remote", side_effect=self.fake_remote
         ), mock.patch.object(
@@ -74,7 +74,7 @@ class SyncIntegrationTest(unittest.TestCase):
             os.environ,
             {"GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_SYSTEM": "/dev/null"},
         ), contextlib.redirect_stdout(io.StringIO()):
-            sync_dotfiles.sync()
+            (command or sync_dotfiles.sync)()
 
     def test_merges_edits_from_all_three_and_updates_every_checkout(self):
         (self.repos["mac"] / "mac.txt").write_text("mac\n")
@@ -146,6 +146,42 @@ class SyncIntegrationTest(unittest.TestCase):
             "both edits resolved\n",
         )
 
+    def test_resume_reopens_codex_and_finishes_existing_merge(self):
+        (self.repos["mac"] / "shared.txt").write_text("mac edit\n")
+        (self.repos["devapp"] / "shared.txt").write_text("devapp edit\n")
+        with self.assertRaises(sync_dotfiles.SyncError):
+            self.run_sync()
+        self.assertTrue((self.repos["mac"] / ".git" / "MERGE_HEAD").exists())
+
+        def resolve_with_codex(label):
+            self.assertEqual(label, "current merge")
+            (self.repos["mac"] / "shared.txt").write_text("resolved together\n")
+            git(self.repos["mac"], "add", "shared.txt")
+
+        with mock.patch.object(sync_dotfiles, "launch_codex", side_effect=resolve_with_codex):
+            self.run_sync(sync_dotfiles.resume)
+
+        head = git(self.repos["mac"], "rev-parse", "HEAD")
+        self.assertEqual(head, git(self.origin, "rev-parse", "master"))
+        for repo in self.repos.values():
+            self.assertEqual(git(repo, "rev-parse", "HEAD"), head)
+
+    def test_codex_resolution_with_whitespace_error_keeps_merge_open(self):
+        (self.repos["mac"] / "shared.txt").write_text("mac edit\n")
+        (self.repos["devapp"] / "shared.txt").write_text("devapp edit\n")
+        original_origin = git(self.origin, "rev-parse", "master")
+
+        def resolve_with_codex(_label):
+            (self.repos["mac"] / "shared.txt").write_text("resolved with trailing space  \n")
+            git(self.repos["mac"], "add", "shared.txt")
+
+        with mock.patch.object(sync_dotfiles, "launch_codex", side_effect=resolve_with_codex):
+            with self.assertRaises(sync_dotfiles.SyncError):
+                self.run_sync()
+
+        self.assertTrue((self.repos["mac"] / ".git" / "MERGE_HEAD").exists())
+        self.assertEqual(git(self.origin, "rev-parse", "master"), original_origin)
+
     def test_already_cherry_picked_devapp_commit_can_still_sync(self):
         (self.repos["devapp"] / "shared.txt").write_text("devapp edit\n")
         git(self.repos["devapp"], "add", "shared.txt")
@@ -193,10 +229,16 @@ class CodexLaunchTest(unittest.TestCase):
     def test_default_command_comes_from_zshrc_alias(self):
         with tempfile.TemporaryDirectory() as directory:
             repo = Path(directory)
+            git(repo, "init", "--initial-branch=master")
+            git(repo, "config", "user.name", "Dotfiles Test")
+            git(repo, "config", "user.email", "dotfiles@example.com")
             (repo / ".zshrc").write_text(
                 'alias cx="ai-sandbox codex --sandbox danger-full-access '
                 '--yolo --model gpt-6.1-sol -c model_reasoning_effort=xhigh"\n'
             )
+            git(repo, "add", ".zshrc")
+            git(repo, "commit", "-m", "add shell alias")
+            (repo / ".zshrc").write_text("<<<<<<< HEAD\n=======\n>>>>>>> remote\n")
             with mock.patch.object(sync_dotfiles, "REPO", repo), mock.patch.dict(
                 os.environ
             ) as environment:
