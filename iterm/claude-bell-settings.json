@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c 'import json; print(json.dumps({\"terminalSequence\": \"\\u0007\"}))'"
+          }
+        ]
+      }
+    ]
+  }
+}

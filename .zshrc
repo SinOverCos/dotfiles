@@ -268,12 +268,12 @@ fi
 
 # The Mac and normal devapps enter the agent sandbox through ai-sandbox.
 if [[ $OSTYPE == darwin* || $HOST == devrestricted-* ]]; then
-    alias cc="ai-sandbox claude --model 'us.anthropic.claude-opus-4-8[1m]' --dangerously-skip-permissions --effort max"
-    alias cx="ai-sandbox codex --sandbox danger-full-access --yolo --model gpt-6.1-sol -c model_reasoning_effort=xhigh"
+    alias cc="ai-sandbox claude --settings \"$HOME/code/dotfiles/iterm/claude-bell-settings.json\" --model 'us.anthropic.claude-opus-5-5' --dangerously-skip-permissions --effort xhigh"
+    alias cx="ai-sandbox codex --sandbox danger-full-access --yolo --model gpt-6.1-sol -c model_reasoning_effort=xhigh -c 'tui.notifications=[\"agent-turn-complete\"]' -c tui.notification_method=bel -c tui.notification_condition=always"
 elif [[ $HOST == devaidata-* ]]; then
     # A Data Devapp is already the execution sandbox.
-    alias cc="claude --model 'us.anthropic.claude-opus-4-8[1m]' --dangerously-skip-permissions --effort max"
-    alias cx="codex --sandbox danger-full-access --yolo --model gpt-6.1-sol -c model_reasoning_effort=xhigh"
+    alias cc="claude --settings \"$HOME/code/dotfiles/iterm/claude-bell-settings.json\" --model 'us.anthropic.claude-opus-5-5' --dangerously-skip-permissions --effort xhigh"
+    alias cx="codex --sandbox danger-full-access --yolo --model gpt-6.1-sol -c model_reasoning_effort=xhigh -c 'tui.notifications=[\"agent-turn-complete\"]' -c tui.notification_method=bel -c tui.notification_condition=always"
 fi
 
 ######################## End Pinterest Stuff ########################

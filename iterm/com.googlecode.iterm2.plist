@@ -707,6 +707,8 @@
 	<false/>
 	<key>ShowMarksInScrollbar</key>
 	<true/>
+	<key>ShowNewOutputIndicator</key>
+	<false/>
 	<key>SoundForEsc</key>
 	<false/>
 	<key>TraditionalVisualBell</key>
