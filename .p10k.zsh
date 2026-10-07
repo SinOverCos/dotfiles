@@ -27,7 +27,9 @@
   unset -m '(POWERLEVEL9K_*|DEFAULT_USER)~POWERLEVEL9K_GITSTATUS_DIR'
 
   # Data devapps cannot download gitstatusd from public release hosts.
-  typeset -g POWERLEVEL9K_DISABLE_GITSTATUS=true
+  if [[ $HOST == devaidata-* ]]; then
+    typeset -g POWERLEVEL9K_DISABLE_GITSTATUS=true
+  fi
 
   # Zsh >= 5.1 is required.
   [[ $ZSH_VERSION == (5.<1->*|<6->.*) ]] || return
@@ -389,9 +391,16 @@
     emulate -L zsh
 
     if [[ -n $P9K_CONTENT ]]; then
-      # If P9K_CONTENT is not empty, use it. It's either "loading" or from vcs_info (not from
-      # gitstatus plugin). VCS_STATUS_* parameters are not available in this case.
+      # P9K_CONTENT is either "loading" or vcs_info output. VCS_STATUS_* isn't available
+      # with vcs_info, so read HEAD on data devapps to keep showing the short hash.
       typeset -g my_git_format=$P9K_CONTENT
+      if [[ $HOST == devaidata-* && $P9K_CONTENT != loading ]]; then
+        local commit
+        if commit=$(command git rev-parse --verify HEAD 2>/dev/null); then
+          local branch=${P9K_CONTENT%% *}
+          my_git_format="${branch} %7F%0F(${commit[1,8]})${P9K_CONTENT[$(( ${#branch} + 1 )),-1]}"
+        fi
+      fi
       return
     fi
 

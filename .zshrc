@@ -4,7 +4,9 @@
 
 # Data devapps cannot download gitstatusd from public release hosts. Set this
 # before Powerlevel10k loads so stale prompt caches do not start the downloader.
-typeset -g POWERLEVEL9K_DISABLE_GITSTATUS=true
+if [[ $HOST == devaidata-* ]]; then
+    typeset -g POWERLEVEL9K_DISABLE_GITSTATUS=true
+fi
 
 if [[ "$PAGER" == "head -n 10000 | cat" || "$COMPOSER_NO_INTERACTION" == "1" ]]; then
     return
