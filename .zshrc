@@ -252,11 +252,16 @@ if [[ $(hostname) =~ tanwang-3XM4VXX ]]; then
 fi
 
 
-if [[ $(hostname) =~ devrestricted-tanwang || $(hostname) =~ tanwang-3XM4VXX ]]; then
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+if [[ $(hostname) =~ tanwang-3XM4VXX ]]; then
+    # export NVM_DIR="$HOME/.nvm"
+    # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    # [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 fi
+
+alias cc="ai-sandbox claude --model 'global.anthropic.claude-fable-5-1' --dangerously-skip-permissions --effort max"
+# alias co="ai-sandbox codex --sandbox danger-full-access --yolo --model gpt-5.5"
+# alias cx="ai-sandbox /opt/homebrew/bin/codex --sandbox danger-full-access --yolo --model gpt-6-astra -c model_reasoning_effort=xhigh"
+alias cx="ai-sandbox /opt/homebrew/bin/codex --sandbox danger-full-access --yolo --model gpt-6-sol -c model_reasoning_effort=xhigh"
 
 ######################## End Pinterest Stuff ########################
 
@@ -268,3 +273,10 @@ if [[ $(hostname) =~ tan-mba ]]; then
     # End of LM Studio CLI section
 fi
 
+
+# bun completions
+[ -s "/Users/tanwang/.bun/_bun" ] && source "/Users/tanwang/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
