@@ -266,10 +266,14 @@ if [[ $OSTYPE == linux* && -z ${XDG_RUNTIME_DIR:-} && -d "/run/user/$(id -u)" ]]
     export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 fi
 
-# Devapps launch agents through the sandbox wrapper.
-if command -v ai-sandbox >/dev/null 2>&1; then
+# The Mac and normal devapps enter the agent sandbox through ai-sandbox.
+if [[ $OSTYPE == darwin* || $HOST == devrestricted-* ]]; then
     alias cc="ai-sandbox claude --model 'us.anthropic.claude-opus-4-8[1m]' --dangerously-skip-permissions --effort max"
     alias cx="ai-sandbox codex --sandbox danger-full-access --yolo --model gpt-6.1-sol -c model_reasoning_effort=xhigh"
+elif [[ $HOST == devaidata-* ]]; then
+    # A Data Devapp is already the execution sandbox.
+    alias cc="claude --model 'us.anthropic.claude-opus-4-8[1m]' --dangerously-skip-permissions --effort max"
+    alias cx="codex --sandbox danger-full-access --yolo --model gpt-6.1-sol -c model_reasoning_effort=xhigh"
 fi
 
 ######################## End Pinterest Stuff ########################
@@ -284,12 +288,6 @@ fi
 
 # Silence terminal bell for `ls` while preserving application notifications.
 unsetopt BEEP
-
-if [[ $(hostname) == devaidata-* ]]; then
-    # A Data Devapp is already the execution sandbox.
-    alias cc="claude --model 'us.anthropic.claude-opus-4-8[1m]' --dangerously-skip-permissions --effort max"
-    alias cx="codex --sandbox danger-full-access --yolo --model gpt-6.1-sol -c model_reasoning_effort=xhigh"
-fi
 
 # Google Cloud SDK
 if [[ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]]; then
