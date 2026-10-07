@@ -182,7 +182,11 @@ export PROMPT_EOL_MARK=''
 ZLE_REMOVE_SUFFIX_CHARS=""
 
 # For spacedentist spr
-[[ -d "$HOME/.cargo/bin" ]] && export PATH="$HOME/.cargo/bin:$PATH"
+if [[ -r "$HOME/.cargo/env" ]]; then
+    source "$HOME/.cargo/env"
+elif [[ -d "$HOME/.cargo/bin" ]]; then
+    export PATH="$HOME/.cargo/bin:$PATH"
+fi
 
 [[ -d "$HOME/.fzf/bin" ]] && export PATH="$HOME/.fzf/bin:$PATH"
 if (( $+commands[fzf] )); then
@@ -227,18 +231,11 @@ export HASTE_SERVER="https://paste.pinadmin.com/"
 export HASTE_SHARE_SERVER="https://paste.pinadmin.com/"
 alias haste="haste | sed 's/share\///g'"
 
+if [[ -d "$HOME/.local/bin/pinci" ]]; then
+    export PATH="$HOME/.local/bin/pinci:$PATH"
+fi
 
 if [[ $(hostname) =~ devrestricted-tanwang ]]; then
-    export PATH="/home/tanwang/.local/bin/pinci:$PATH"
-
-    export PYENV_ROOT="$HOME/.pyenv"
-    [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init - zsh)"
-
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
     # Fix SSH auth socket location so agent forwarding works with tmux
     # https://w.pinadmin.com/pages/viewpage.action?pageId=465732721
     if test "$SSH_AUTH_SOCK"; then
@@ -258,16 +255,22 @@ if [[ $(hostname) =~ tanwang-3XM4VXX ]]; then
 fi
 
 
-if [[ $(hostname) =~ tanwang-3XM4VXX ]]; then
-    # export NVM_DIR="$HOME/.nvm"
-    # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-    # [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+if [[ -s "$HOME/.nvm/nvm.sh" ]]; then
+    export NVM_DIR="$HOME/.nvm"
+    source "$NVM_DIR/nvm.sh"
+    [[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
 fi
 
-alias cc="ai-sandbox claude --model 'global.anthropic.claude-fable-5-1' --dangerously-skip-permissions --effort max"
-# alias co="ai-sandbox codex --sandbox danger-full-access --yolo --model gpt-5.5"
-# alias cx="ai-sandbox /opt/homebrew/bin/codex --sandbox danger-full-access --yolo --model gpt-6-astra -c model_reasoning_effort=xhigh"
-alias cx="ai-sandbox /opt/homebrew/bin/codex --sandbox danger-full-access --yolo --model gpt-6-sol -c model_reasoning_effort=xhigh"
+# For running daemons on Linux hosts (e.g. a Claude Code listener).
+if [[ $OSTYPE == linux* && -z ${XDG_RUNTIME_DIR:-} && -d "/run/user/$(id -u)" ]]; then
+    export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+fi
+
+# Devapps launch agents through the sandbox wrapper.
+if command -v ai-sandbox >/dev/null 2>&1; then
+    alias cc="ai-sandbox claude --model 'us.anthropic.claude-opus-4-8[1m]' --dangerously-skip-permissions --effort max"
+    alias cx="ai-sandbox codex --sandbox danger-full-access --yolo --model gpt-6.1-sol -c model_reasoning_effort=xhigh"
+fi
 
 ######################## End Pinterest Stuff ########################
 
@@ -289,17 +292,30 @@ if [[ $(hostname) == devaidata-* ]]; then
 fi
 
 # Google Cloud SDK
-[[ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]] && source "$HOME/google-cloud-sdk/path.zsh.inc"
-[[ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]] && source "$HOME/google-cloud-sdk/completion.zsh.inc"
+if [[ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]]; then
+    source "$HOME/google-cloud-sdk/path.zsh.inc"
+fi
+if [[ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]]; then
+    source "$HOME/google-cloud-sdk/completion.zsh.inc"
+fi
 
 # PinTools CLI
-export PINTOOLS_ROOT_PATH="$HOME/code/pintools"
+if [[ -d "$HOME/code/pintools" ]]; then
+    export PINTOOLS_ROOT_PATH="$HOME/code/pintools"
+fi
 
 # mise (added by PinTools setup)
-export PATH="$HOME/.local/share/mise/shims:$PATH"
-(( $+commands[mise] )) && eval "$(mise activate zsh)"
+if [[ -d "$HOME/.local/share/mise/shims" ]]; then
+    export PATH="$HOME/.local/share/mise/shims:$PATH"
+fi
+if command -v mise >/dev/null 2>&1; then
+    eval "$(mise activate zsh)"
+fi
 
-# bun
-export BUN_INSTALL="$HOME/.bun"
-[[ -s "$BUN_INSTALL/_bun" ]] && source "$BUN_INSTALL/_bun"
-[[ -d "$BUN_INSTALL/bin" ]] && export PATH="$BUN_INSTALL/bin:$PATH"
+if [[ -d "$HOME/.bun" ]]; then
+    # bun completions
+    [[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
+
+    export BUN_INSTALL="$HOME/.bun"
+    export PATH="$BUN_INSTALL/bin:$PATH"
+fi
