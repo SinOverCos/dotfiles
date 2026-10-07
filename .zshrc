@@ -2,6 +2,10 @@
 # https://pinterest.slack.com/archives/C08SCU6CW3G/p1749566241945479?thread_ts=1749222888.950959&cid=C08SCU6CW3G
 # export COMPOSER_NO_INTERACTION=1
 
+# Data devapps cannot download gitstatusd from public release hosts. Set this
+# before Powerlevel10k loads so stale prompt caches do not start the downloader.
+typeset -g POWERLEVEL9K_DISABLE_GITSTATUS=true
+
 if [[ "$PAGER" == "head -n 10000 | cat" || "$COMPOSER_NO_INTERACTION" == "1" ]]; then
     return
 fi
@@ -24,6 +28,9 @@ export ZSH="$HOME/.oh-my-zsh"
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="powerlevel10k/powerlevel10k"
+
+# Keep shell startup independent of network access on firewalled hosts.
+zstyle ':omz:update' mode disabled
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -87,7 +94,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git)
 
-source $ZSH/oh-my-zsh.sh
+[[ -r "$ZSH/oh-my-zsh.sh" ]] && source "$ZSH/oh-my-zsh.sh"
 
 # User configuration
 
@@ -147,15 +154,6 @@ ls_colors_pieces=(
 export LS_COLORS=$(printf "%s" "${ls_colors_pieces[@]}")  
 
 
-auto_virtualenv() {
-    command=$(python3 ~/code/auto-virtualenv/venv_toggle_command.py --command)
-    eval $command
-}
-
-precmd() {
-    auto_virtualenv
-}
-
 alias rg="rg --pretty --glob '!tags' --max-columns 300 "
 alias rgi="rg --pretty --ignore-case --glob '!tags' --max-columns 300 "
 
@@ -184,11 +182,19 @@ export PROMPT_EOL_MARK=''
 ZLE_REMOVE_SUFFIX_CHARS=""
 
 # For spacedentist spr
-export PATH="/home/tanwang/.cargo/bin:$PATH"
+[[ -d "$HOME/.cargo/bin" ]] && export PATH="$HOME/.cargo/bin:$PATH"
 
-export PATH="/home/tanwang/.fzf/bin:$PATH"
-# Might have to download the binary directly, since apt has a really old version.
-source <(fzf --zsh)
+[[ -d "$HOME/.fzf/bin" ]] && export PATH="$HOME/.fzf/bin:$PATH"
+if (( $+commands[fzf] )); then
+    if [[ -r "$HOME/.fzf.zsh" ]]; then
+        source "$HOME/.fzf.zsh"
+    elif [[ -r /usr/share/doc/fzf/examples/completion.zsh ]]; then
+        source /usr/share/doc/fzf/examples/completion.zsh
+        source /usr/share/doc/fzf/examples/key-bindings.zsh
+    elif fzf --zsh >/dev/null 2>&1; then
+        source <(fzf --zsh)
+    fi
+fi
 
 # To put the input field at the top
 export FZF_DEFAULT_OPTS=--reverse  # linux
@@ -268,3 +274,27 @@ if [[ $(hostname) =~ tan-mba ]]; then
     # End of LM Studio CLI section
 fi
 
+# Silence terminal bell for `ls` while preserving application notifications.
+unsetopt BEEP
+
+if [[ $(hostname) == devaidata-* ]]; then
+    # A Data Devapp is already the execution sandbox.
+    alias cc="claude --model 'us.anthropic.claude-opus-4-8[1m]' --dangerously-skip-permissions --effort max"
+    alias cx="codex --sandbox danger-full-access --yolo --model gpt-6.1-sol -c model_reasoning_effort=xhigh"
+fi
+
+# Google Cloud SDK
+[[ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]] && source "$HOME/google-cloud-sdk/path.zsh.inc"
+[[ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]] && source "$HOME/google-cloud-sdk/completion.zsh.inc"
+
+# PinTools CLI
+export PINTOOLS_ROOT_PATH="$HOME/code/pintools"
+
+# mise (added by PinTools setup)
+export PATH="$HOME/.local/share/mise/shims:$PATH"
+(( $+commands[mise] )) && eval "$(mise activate zsh)"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+[[ -s "$BUN_INSTALL/_bun" ]] && source "$BUN_INSTALL/_bun"
+[[ -d "$BUN_INSTALL/bin" ]] && export PATH="$BUN_INSTALL/bin:$PATH"
