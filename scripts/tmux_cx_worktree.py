@@ -8,34 +8,33 @@ import fcntl
 import hashlib
 import os
 from pathlib import Path
+import shlex
 import subprocess
 import sys
 import tempfile
-import time
+
+from tmux_cx_cleanup import git, start_watcher
 
 
-DEFAULT_AGENT_COMMAND = (
-    "zsh -lic 'cx --worktree; "
-    "tmux set-option -p @cx_worktree_exited 1; exec zsh -l'"
-)
-
-
-def git_worktrees(repo: Path, managed_root: Path) -> set[Path]:
-    result = subprocess.run(
-        ["git", "-C", str(repo), "worktree", "list", "--porcelain"],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    paths = {
-        Path(line.removeprefix("worktree ")).resolve()
-        for line in result.stdout.splitlines()
-        if line.startswith("worktree ")
-    }
-    return {
-        path for path in paths
-        if path.is_relative_to(managed_root) and path.name == repo.name
-    }
+def refresh_base(repo: Path) -> str:
+    branch = git(repo, "symbolic-ref", "--quiet", "--short", "HEAD")
+    if git(repo, "remote").splitlines().count("origin"):
+        remote_head = subprocess.run(
+            ["git", "-C", str(repo), "symbolic-ref", "--short", "refs/remotes/origin/HEAD"],
+            capture_output=True, text=True, check=False,
+        ).stdout.strip()
+        base = remote_head.removeprefix("origin/")
+        if not base:
+            base = next((name for name in ("main", "master") if subprocess.run(
+                ["git", "-C", str(repo), "show-ref", "--verify", "--quiet", f"refs/heads/{name}"],
+                capture_output=True, check=False,
+            ).returncode == 0), branch)
+        if branch == base:
+            git(repo, "pull", "--ff-only", "origin", base)
+        else:
+            git(repo, "fetch", "origin", f"{base}:{base}")
+        return git(repo, "rev-parse", base)
+    return git(repo, "rev-parse", "HEAD")
 
 
 def main() -> int:
@@ -47,43 +46,36 @@ def main() -> int:
     parser.add_argument("--socket")
     parser.add_argument("--session")
     parser.add_argument("--pane")
-    parser.add_argument("--agent-command", default=DEFAULT_AGENT_COMMAND)
-    parser.add_argument("--timeout", type=int, default=180)
+    parser.add_argument("--agent-command", help="override the command run in the new worktree")
     args = parser.parse_args()
 
     if not args.socket and not os.environ.get("TMUX"):
         parser.error("run from inside tmux or pass --socket and --session")
     repo = args.repo.expanduser().resolve()
     managed_root = args.managed_root.expanduser().resolve()
-    if not repo.is_dir():
-        parser.error(f"repository does not exist: {repo}")
-    root = subprocess.run(
-        ["git", "-C", str(repo), "rev-parse", "--show-toplevel"],
-        capture_output=True, text=True, check=True,
-    ).stdout.strip()
-    if Path(root).resolve() != repo:
+    if not repo.is_dir() or Path(git(repo, "rev-parse", "--show-toplevel")).resolve() != repo:
         parser.error(f"expected a repository root: {repo}")
 
     def tmux(*command: str) -> str:
         argv = ["tmux"]
         if args.socket:
             argv.extend(["-S", args.socket])
-        result = subprocess.run(
-            [*argv, *command], capture_output=True, text=True, check=True,
-        )
-        return result.stdout.strip()
+        return subprocess.run(
+            [*argv, *command], capture_output=True, text=True, check=True, timeout=15,
+        ).stdout.strip()
 
     session = args.session
     if not session:
         pane = args.pane or os.environ.get("TMUX_PANE")
         target = ["-t", pane] if pane else []
         session = tmux("display-message", "-p", *target, "#{session_id}")
+    socket = tmux("display-message", "-p", "-t", session, "#{socket_path}")
 
     def report(message: str) -> None:
         print(message, file=sys.stderr)
         try:
             tmux("display-message", "-t", session, "-d", "10000", message)
-        except subprocess.CalledProcessError:
+        except subprocess.SubprocessError:
             pass
 
     lock_name = hashlib.sha256(str(repo).encode()).hexdigest()[:12]
@@ -98,57 +90,47 @@ def main() -> int:
             report("A Codex worktree window is already being set up")
             return 1
 
-        before = git_worktrees(repo, managed_root)
-        right = None
-        left = None
+        worktree = None
+        window = None
         try:
+            base_head = refresh_base(repo)
+            managed_root.mkdir(parents=True, exist_ok=True)
+            container = Path(tempfile.mkdtemp(prefix="tmux-", dir=managed_root))
+            worktree = container / repo.name
+            # Allocate this exact worktree ourselves. Watching additions to the
+            # repository could adopt a concurrently created session's worktree.
+            git(repo, "worktree", "add", "--detach", str(worktree), base_head)
+            command = args.agent_command
+            if command is None:
+                shell = (
+                    f"cx; cd -- {shlex.quote(str(repo))}; "
+                    "tmux set-option -p @cx_worktree_exited 1; exec zsh -l"
+                )
+                command = "zsh -lic " + shlex.quote(shell)
             window, right = tmux(
-                "new-window", "-t", f"{session}:", "-c", str(repo),
-                "-n", args.name, "-P", "-F", "#{window_id} #{pane_id}",
-                args.agent_command,
+                "new-window", "-t", f"{session}:", "-c", str(worktree),
+                "-n", args.name, "-P", "-F", "#{window_id} #{pane_id}", command,
             ).split()
+            tmux("set-option", "-w", "-t", window, "@cx_worktree", str(worktree))
+            state = start_watcher(
+                repo, worktree, managed_root, base_head, socket, window, right,
+            )
+            tmux("set-option", "-w", "-t", window, "@cx_cleanup_state", str(state))
+            tmux("split-window", "-b", "-h", "-l", "33%", "-c", str(worktree), "-t", right)
             tmux("select-window", "-t", window)
             tmux("select-pane", "-t", right)
-
-            deadline = time.monotonic() + args.timeout
-            while time.monotonic() < deadline:
-                added = git_worktrees(repo, managed_root) - before
-                if len(added) > 1:
-                    report("Multiple new Codex worktrees found; left pane will open in the base checkout")
-                    return 1
-                if added:
-                    worktree = added.pop()
-                    # Set the working directory before shell startup. Sending
-                    # `cd` to a new shell races startup and directory hooks.
-                    left = tmux(
-                        "split-window", "-b", "-h", "-l", "33%", "-c", str(worktree),
-                        "-t", right, "-P", "-F", "#{pane_id}",
-                    )
-                    tmux("select-pane", "-t", right)
-                    return 0
-                if tmux("display-message", "-p", "-t", right,
-                        "#{@cx_worktree_exited}") == "1":
-                    report("Codex exited before creating a worktree")
-                    return 1
-                time.sleep(0.5)
-            report(
-                f"No Codex worktree appeared after {args.timeout}s; "
-                "left pane will open in the base checkout"
-            )
-            return 1
-        except (OSError, subprocess.CalledProcessError, ValueError) as error:
-            report(f"Could not set up the Codex worktree window: {error}")
-            return 1
-        finally:
-            if right and left is None:
+            return 0
+        except (OSError, RuntimeError, subprocess.SubprocessError, ValueError) as error:
+            detail = error.stderr.strip() if isinstance(error, subprocess.CalledProcessError) else str(error)
+            report(f"Could not open the Codex worktree window: {detail}")
+            if worktree is not None and window is None:
+                # No agent was started, so only our unused checkout can be removed.
                 try:
-                    tmux(
-                        "split-window", "-b", "-h", "-l", "33%", "-c", str(repo),
-                        "-t", right,
-                    )
-                    tmux("select-pane", "-t", right)
-                except (OSError, subprocess.CalledProcessError) as error:
-                    report(f"Could not open the left pane in the base checkout: {error}")
+                    git(repo, "worktree", "remove", str(worktree))
+                    worktree.parent.rmdir()
+                except (OSError, RuntimeError, subprocess.SubprocessError):
+                    report(f"Retained unused worktree for inspection: {worktree}")
+            return 1
 
 
 if __name__ == "__main__":

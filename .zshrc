@@ -268,6 +268,23 @@ if [[ $OSTYPE == linux* && -z ${XDG_RUNTIME_DIR:-} && -d "/run/user/$(id -u)" ]]
     export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 fi
 
+# Preserve the outer server address before ai-sandbox unsets TMUX. Hooks use
+# it only to identify a state file; they do not connect to the outer socket.
+if [[ -n ${TMUX:-} ]]; then
+    export TANWANG_TMUX_SOCKET="${TMUX%%,*}"
+fi
+
+# Install new or changed personal plugins once the agent CLIs are on PATH.
+if [[ -o interactive && ${TANWANG_AUTO_AGENT_PLUGINS:-1} != 0 &&
+      -r "$HOME/code/tanwang/bootstrap.py" ]] && (( $+commands[python3] )); then
+    (
+        tanwang_plugin_state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/tanwang-bootstrap"
+        mkdir -p "$tanwang_plugin_state_dir" &&
+            python3 "$HOME/code/tanwang/bootstrap.py" --auto \
+                >> "$tanwang_plugin_state_dir/bootstrap.log" 2>&1
+    ) &!
+fi
+
 # The Mac and normal devapps enter the agent sandbox through ai-sandbox.
 if [[ $OSTYPE == darwin* || $HOST == devrestricted-* ]]; then
     alias cc="ai-sandbox claude --settings \"$HOME/code/dotfiles/iterm/claude-bell-settings.json\" --model 'us.anthropic.claude-opus-5-5' --dangerously-skip-permissions --effort xhigh"

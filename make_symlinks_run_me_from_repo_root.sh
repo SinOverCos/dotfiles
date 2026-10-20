@@ -5,3 +5,6 @@ ln -sf $(readlink -f .tmux.conf) ~/.tmux.conf
 ln -sf $(readlink -f .vimrc) ~/.vimrc
 ln -sf $(readlink -f .zshrc) ~/.zshrc
 
+if [ -f "$HOME/code/tanwang/bootstrap.py" ]; then
+    python3 "$HOME/code/tanwang/bootstrap.py" --auto
+fi
