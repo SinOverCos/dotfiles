@@ -34,7 +34,7 @@ error; correct invalid TOML or unexpected local types before retrying.
 ## Codex worktree windows
 
 Press `Ctrl-a`, then `Ctrl-w` for Codex, or `Ctrl-a`, then `Ctrl-c` for Claude
-Code. Press `Ctrl-q` to close the whole window immediately, including both
+Code. Press `Ctrl-a`, then `Ctrl-q` to close the whole window, including both
 panes, without a confirmation prompt.
 
 Both panes appear before Git starts. After refreshing the base checkout, the
@@ -73,8 +73,8 @@ unexpectedly, cleanup retains the checkout for inspection. For newly opened
 windows, the detached watcher stops the worktree's owned PinTools instances
 and wipes/releases their disposable databases before checking whether the
 source checkout can be removed. This runs asynchronously after the panes
-leave the checkout, so Ctrl-q returns immediately. Dirty source or unpushed
-commits still keep the worktree, even after app/database cleanup succeeds.
+leave the checkout, so Ctrl-a Ctrl-q returns immediately. Dirty source or
+unpushed commits still keep the worktree, even after app/database cleanup succeeds.
 Teardown failures retain the checkout and explain the failed step in its
 watcher state. Other checkouts' instances and data are left alone. Older
 already-running watchers keep their original policy. The watcher never

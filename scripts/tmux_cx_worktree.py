@@ -338,7 +338,7 @@ def main() -> int:
                 )
                 heading = "Repository loading failed. Your agent is still open." if agent_started else "Setup failed."
                 log.write(
-                    f"\n{heading}\nPress Ctrl-q to close this window.\n"
+                    f"\n{heading}\nPress Ctrl-a Ctrl-q to close this window.\n"
                     f"Then Ctrl-a Ctrl-w to retry.\n\n{detail}\n"
                 )
                 report(message)

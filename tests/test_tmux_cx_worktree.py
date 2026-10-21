@@ -545,7 +545,7 @@ class TmuxWorktreeIntegrationTest(unittest.TestCase):
             content = self.tmux("capture-pane", "-p", "-t", right)
             time.sleep(0.05)
         self.assertIn("The left setup pane was closed", content.replace("\n", ""))
-        self.assertIn("Press Ctrl-q", content)
+        self.assertIn("Press Ctrl-a Ctrl-q", content.replace("\n", ""))
 
     def test_closing_right_loading_pane_during_checkout_removes_unused_checkout(self):
         gate, process = self.block_git("add")
@@ -582,7 +582,7 @@ class TmuxWorktreeIntegrationTest(unittest.TestCase):
                 content = self.tmux("capture-pane", "-p", "-t", pane)
                 time.sleep(0.05)
             self.assertIn("Setup failed", content)
-            self.assertIn("Press Ctrl-q", content)
+            self.assertIn("Press Ctrl-a Ctrl-q", content.replace("\n", ""))
             self.assertIn("Then Ctrl-a Ctrl-w to retry", content.replace("\n", ""))
         self.assertEqual(list(self.managed_root.iterdir()), [self.worktree.parent])
         log = Path(self.tmux("show-options", "-w", "-v", "@cx_setup_log"))
