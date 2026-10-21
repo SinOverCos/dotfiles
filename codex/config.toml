@@ -1,0 +1,21 @@
+# Shared preferences only. MCP, hooks, plugins, and project trust stay local.
+personality = "pragmatic"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "xhigh"
+web_search = "live"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
+plan_mode_reasoning_effort = "xhigh"
+service_tier = "fast"
+
+[features]
+worktrees = true
+
+[tui]
+notifications = ["agent-turn-complete"]
+notification_method = "bel"
+notification_condition = "always"
+mouse_scroll_speed = 3
+status_line = ["model-with-reasoning", "current-dir", "context-used", "pull-request-number", "git-branch", "thread-title", "fast-mode"]
+status_line_use_colors = true
+theme = "catppuccin-mocha"

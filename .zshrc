@@ -285,14 +285,19 @@ if [[ -o interactive && ${TANWANG_AUTO_AGENT_PLUGINS:-1} != 0 &&
     ) &!
 fi
 
+# Apply portable preferences without replacing machine-specific Codex settings.
+if [[ -o interactive && -r "$HOME/code/dotfiles/scripts/sync_codex_config.py" ]]; then
+    python3 "$HOME/code/dotfiles/scripts/sync_codex_config.py" --quiet
+fi
+
 # The Mac and normal devapps enter the agent sandbox through ai-sandbox.
 if [[ $OSTYPE == darwin* || $HOST == devrestricted-* ]]; then
     alias cc="ai-sandbox claude --settings \"$HOME/code/dotfiles/iterm/claude-bell-settings.json\" --model 'us.anthropic.claude-opus-5-5' --dangerously-skip-permissions --effort xhigh"
-    alias cx="ai-sandbox codex --sandbox danger-full-access --yolo --model gpt-6.1-sol -c model_reasoning_effort=xhigh -c 'tui.notifications=[\"agent-turn-complete\"]' -c tui.notification_method=bel -c tui.notification_condition=always -c tui.mouse_scroll_speed=3"
+    alias cx="ai-sandbox codex --sandbox danger-full-access --yolo --model gpt-6.1-sol"
 elif [[ $HOST == devaidata-* ]]; then
     # A Data Devapp is already the execution sandbox.
     alias cc="claude --settings \"$HOME/code/dotfiles/iterm/claude-bell-settings.json\" --model 'us.anthropic.claude-opus-5-5' --dangerously-skip-permissions --effort xhigh"
-    alias cx="codex --sandbox danger-full-access --yolo --model gpt-6.1-sol -c model_reasoning_effort=xhigh -c 'tui.notifications=[\"agent-turn-complete\"]' -c tui.notification_method=bel -c tui.notification_condition=always -c tui.mouse_scroll_speed=3"
+    alias cx="codex --sandbox danger-full-access --yolo --model gpt-6.1-sol"
 fi
 
 ######################## End Pinterest Stuff ########################

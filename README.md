@@ -1,14 +1,62 @@
 # Dotfiles
 
+## Codex preferences
+
+Keep personal Codex preferences shared between the Mac and devapps. The
+preference helper requires Python 3.11 or newer. From this repository root,
+edit the tracked preferences and apply them:
+
+```bash
+${EDITOR:-vi} codex/config.toml
+python3 scripts/sync_codex_config.py
+```
+
+Symlink setup and new interactive shells also apply the shared preferences.
+Existing Codex sessions retain their loaded settings. Machine-specific MCP
+routing, authentication, hooks, plugins, and project trust remain local; the
+home configuration stays a regular file that the managed catalog can update.
+When preferences change, the helper rewrites TOML formatting and saves the
+original configuration beside it in a private backup. Unchanged files are
+left byte-for-byte intact.
+
+After changing preferences through Codex, capture them before opening a new
+shell, which would reapply the tracked version:
+
+```bash
+python3 scripts/sync_codex_config.py --capture
+```
+
+Capture includes only the portable preference allowlist. Review the resulting
+Git diff before syncing dotfiles to other machines. If applying preferences
+fails, the helper leaves the local configuration in place and prints the
+error; correct invalid TOML or unexpected local types before retrying.
+
 ## Codex worktree windows
 
-Press `Ctrl-a`, then `Ctrl-w` to open a Codex worktree window with a shell
-on the left. Press `Ctrl-q` to close the whole window immediately, including
-both panes, without a confirmation prompt.
+Press `Ctrl-a`, then `Ctrl-w` for Codex, or `Ctrl-a`, then `Ctrl-c` for Claude
+Code. Press `Ctrl-q` to close the whole window immediately, including both
+panes, without a confirmation prompt.
 
-The launcher refreshes the base checkout with a fast-forward update, creates
-its own detached worktree, and starts Codex there. It does not guess which
-worktree belongs to the window from other sessions' filesystem changes.
+Both panes appear before Git starts. After refreshing the base checkout, the
+launcher creates a detached worktree with root configuration, instructions,
+and agent skills first. The agent opens on the right immediately; you can
+type at its input prompt while the rest of the source files load in the
+background. Keys typed during the initial starting screen are discarded.
+The left pane shows progress and becomes a shell when loading finishes. The agent
+stays in the same process and directory, preserving unfinished drafts.
+
+Both agents receive startup instructions to check readiness before reading,
+searching, or changing repository files. Conversation and typing can begin
+while loading continues. Loading failures stay visible on the left and are
+reported by the readiness check. Early file changes are preserved by Git's
+sparse-checkout expansion. The launcher never force-resets a live worktree.
+There is no spare worktree or prewarming service.
+
+New panes skip PinTools' automatic dependency installation using
+`PINTOOLS_READ_ONLY=1`. Files remain editable, and explicit dependency installs
+still work. Install only the packages needed for the task. Dependencies and
+generated files stay separate in each worktree.
+
 Each new window starts a detached cleanup watcher on the host, outside the
 agent sandbox and the window's panes. This starts automatically on macOS
 and Linux, with no separate service setup. It requires Python 3.9 or newer,
@@ -20,7 +68,17 @@ new commits missing from remote-tracking branches. It preserves branches,
 uncommitted and untracked files, unpushed commits, and unfinished Git
 operations. Ignored local files also prevent removal, except recognized
 generated dependency, build, and cache directories.
-It never force-removes a worktree.
+Cleanup also waits for background loading to finish. If the loader stops
+unexpectedly, cleanup retains the checkout for inspection. For newly opened
+windows, the detached watcher stops the worktree's owned PinTools instances
+and wipes/releases their disposable databases before checking whether the
+source checkout can be removed. This runs asynchronously after the panes
+leave the checkout, so Ctrl-q returns immediately. Dirty source or unpushed
+commits still keep the worktree, even after app/database cleanup succeeds.
+Teardown failures retain the checkout and explain the failed step in its
+watcher state. Other checkouts' instances and data are left alone. Older
+already-running watchers keep their original policy. The watcher never
+force-removes a worktree.
 
 To find the current window's watcher state, run
 `tmux show-options -w -v @cx_cleanup_state`. State and logs are
