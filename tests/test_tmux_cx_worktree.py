@@ -221,8 +221,8 @@ class TmuxWorktreeIntegrationTest(unittest.TestCase):
         return [json.loads(path.read_text()) for path in
                 (self.root / "state/tmux-cx-worktree").glob("*.json")]
 
-    def wait_for_watchers(self):
-        deadline = time.monotonic() + 8
+    def wait_for_watchers(self, timeout=8):
+        deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             if all(state.get("status") in {"removed", "retained"} for state in self.states()):
                 return
@@ -641,6 +641,67 @@ class TmuxWorktreeIntegrationTest(unittest.TestCase):
         self.assertEqual(state["status"], "removed", state)
         self.assertFalse(self.worktree.exists())
         self.assertNotIn(str(self.worktree), self.run_command(
+            "git", "-C", str(self.repo), "worktree", "list", "--porcelain"))
+
+    def wrap_worktree_removal(self, source):
+        real_git = shutil.which("git", path=self.env["PATH"])
+        commands = self.root / "commands"
+        commands.mkdir()
+        wrapper = commands / "git"
+        wrapper.write_text(
+            "#!/usr/bin/env python3\n"
+            "import os,sys,time,shutil\nfrom pathlib import Path\n"
+            "if sys.argv[3:5] == ['worktree', 'remove']:\n"
+            + "".join("    " + line + "\n" for line in source.splitlines())
+            + f"os.execv({real_git!r}, [{real_git!r}, *sys.argv[1:]])\n"
+        )
+        wrapper.chmod(0o700)
+        self.env["PATH"] = str(commands) + os.pathsep + self.env["PATH"]
+
+    def test_slow_worktree_removal_finishes_before_reporting_success(self):
+        started = self.root / "removal-started"
+        self.wrap_worktree_removal(f"Path({str(started)!r}).touch()\ntime.sleep(31)")
+        self.assertEqual(self.launch(self.agent_command()).returncode, 0)
+        self.tmux("kill-window")
+        deadline = time.monotonic() + 8
+        while not started.exists() and time.monotonic() < deadline:
+            time.sleep(0.05)
+        self.assertTrue(started.exists(), "worktree removal did not start")
+        self.assertEqual(self.states()[0]["status"], "cleaning")
+        self.assertTrue(self.worktree.exists())
+        self.wait_for_watchers(timeout=45)
+        self.assertEqual(self.states()[0]["status"], "removed", self.states())
+        self.assertFalse(self.worktree.exists())
+        self.assertNotIn(str(self.worktree), self.run_command(
+            "git", "-C", str(self.repo), "worktree", "list", "--porcelain"))
+
+    def test_success_without_directory_removal_is_reported_as_retained(self):
+        self.wrap_worktree_removal("raise SystemExit(0)")
+        self.assertEqual(self.launch(self.agent_command()).returncode, 0)
+        state = self.close_window()
+        self.assertEqual(state["status"], "retained", state)
+        self.assertIn("directory still exists", state["detail"])
+        self.assertTrue(self.worktree.exists())
+
+    def test_success_without_deregistration_is_reported_as_retained(self):
+        self.wrap_worktree_removal("shutil.rmtree(sys.argv[5])\nraise SystemExit(0)")
+        self.assertEqual(self.launch(self.agent_command()).returncode, 0)
+        state = self.close_window()
+        self.assertEqual(state["status"], "retained", state)
+        self.assertIn("still registered", state["detail"])
+        self.assertFalse(self.worktree.exists())
+
+    def test_partial_removal_failure_is_not_reported_as_success(self):
+        self.wrap_worktree_removal(
+            "Path(sys.argv[5], '.git').unlink()\nraise SystemExit('interrupted removal')"
+        )
+        self.assertEqual(self.launch(self.agent_command()).returncode, 0)
+        state = self.close_window()
+        self.assertEqual(state["status"], "retained", state)
+        self.assertIn("interrupted removal", state["detail"])
+        self.assertTrue(self.worktree.exists())
+        self.assertFalse((self.worktree / ".git").exists())
+        self.assertIn(str(self.worktree), self.run_command(
             "git", "-C", str(self.repo), "worktree", "list", "--porcelain"))
 
     def test_final_window_close_removes_clean_worktree(self):

@@ -43,7 +43,7 @@ def identity(path: Path) -> list[int]:
     return [stat.st_dev, stat.st_ino]
 
 
-def git(path: Path, *args: str, timeout: float = 30) -> str:
+def git(path: Path, *args: str, timeout: float | None = 30) -> str:
     result = subprocess.run(
         ["git", "-C", str(path), *args], capture_output=True, text=True,
         check=False, timeout=timeout,
@@ -273,7 +273,14 @@ def remove_worktree(watch: Watch) -> str:
     if git(worktree, "rev-parse", "HEAD") != head:
         raise RuntimeError("HEAD changed during cleanup")
     # Git performs its own final dirty check. Never use --force or remove branches.
-    git(repo, "worktree", "remove", str(worktree))
+    # Removal is destructive and can take minutes for large checkouts. Killing it
+    # on a timer can leave a partially deleted checkout without its .git link.
+    git(repo, "worktree", "remove", str(worktree), timeout=None)
+    if worktree.exists() or worktree.is_symlink():
+        raise RuntimeError("Git reported success but the worktree directory still exists")
+    records = git(repo, "worktree", "list", "--porcelain", "-z").split("\0\0")
+    if any(entry.startswith(f"worktree {worktree}\0") for entry in records):
+        raise RuntimeError("Git reported success but the worktree is still registered")
     if worktree.parent.parent == Path(watch.managed_root):
         try:
             worktree.parent.rmdir()
@@ -301,6 +308,7 @@ def run_watcher(state: Path) -> int:
             # Runtime shutdown can take time. Recheck panes before deleting files.
             while not ready(watch, panes(watch)):
                 time.sleep(0.5)
+        record(state, watch, "cleaning", resource_detail + "checking and removing the closed worktree")
         detail = remove_worktree(watch)
     except (OSError, RuntimeError, ValueError, subprocess.SubprocessError) as error:
         detail = resource_detail + str(error)
@@ -308,7 +316,7 @@ def run_watcher(state: Path) -> int:
         try:
             subprocess.run(
                 ["tmux", "-S", watch.socket, "display-message", "-d", "10000",
-                 f"Kept Codex worktree {watch.worktree}: {detail}"],
+                 f"Codex worktree cleanup did not finish for {watch.worktree}: {detail}"],
                 capture_output=True, timeout=5,
             )
         except (OSError, subprocess.SubprocessError):

@@ -351,7 +351,7 @@ def main() -> int:
                 if worktree is not None and not watching:
                     # Only placeholders have run; Git still performs its dirty check.
                     try:
-                        git(repo, "worktree", "remove", str(worktree))
+                        git(repo, "worktree", "remove", str(worktree), timeout=None)
                     except (OSError, RuntimeError, subprocess.SubprocessError):
                         if worktree.exists():
                             notice = f"Retained unused worktree for inspection: {worktree}"
